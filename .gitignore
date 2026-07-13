@@ -29,3 +29,6 @@ Thumbs.db
 npm-debug.log*
 yarn-debug.log*
 yarn-error.log*
+
+# Local progress notes — not for the public repo
+PROGRESS.md
