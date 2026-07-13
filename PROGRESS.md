@@ -64,8 +64,43 @@ codebase across 4 phases: Orders redesign, Analytics, Logistics, Theme. Full pla
   code review instead. Worth a manual dispatch + re-check next time you're in the app if you want
   to see the non-zero-data path.
 
-### Phase 3 — Logistics (next)
-Not started. See plan file for scope: `logistics`/`logistics_documents` migration,
-`src/lib/logistics.js`, `src/pages/Logistics.jsx`, `/logistics` route, KPI strip + per-order
-shipment cards with step-chips/progress bar + expandable Container/Vehicle/Customs/Documents
-panels.
+### Phase 3 — Logistics (done)
+- Migration `supabase/migrations/20260713190625_add_logistics_tables.sql` adds `logistics`
+  (FK to `orders`, container/vehicle/customs fields, `overall_status`, `delivered_at`) and
+  `logistics_documents` (FK to `logistics`, `doc_type`/`file_url`) — applied via `supabase db
+  push`. Same `allow_all` RLS policy posture as the existing tables (no new authorization
+  regression, just consistent with today's model).
+- New `src/lib/logistics.js`: `getDispatchedOrdersWithLogistics()` (batches orders + their
+  logistics rows), `getOrCreateLogistics(orderId)` (lazy — only materializes a row when a card
+  is actually expanded, not on page load), `updateLogistics`, `markDelivered`,
+  `getLogisticsDocuments`/`addLogisticsDocument`, `getLogisticsDocumentCounts` (batched, for the
+  "Documents Missing" KPI without N+1 queries).
+- New `src/components/LogisticsCard.jsx` + `src/pages/Logistics.jsx` + `src/styles/Logistics.css`:
+  KPI strip (Active Shipments/Container Pending/Documents Missing/Customs Cleared), one card per
+  dispatched order with step-chips (Vehicle/Container/Customs/Delivery, color-coded from field
+  completeness) + progress bar, expandable 2×2 Container/Vehicle/Customs/Documents panel with
+  inline editing, a lightweight document-URL add form (no Supabase Storage — just a `doc_type` +
+  URL reference, per plan), and "Mark Delivered".
+- `/logistics` route added, same any-logged-in-user guard as `/analytics`. Nav link enabled.
+- **Bug found and fixed during verification**: every save/add-doc/mark-delivered action called
+  the parent's `fetchData()`, which set `loading=true` and unmounted the entire shipment list
+  (including the just-expanded card's local edit state) before remounting it — so the panel you
+  were editing would slam shut right after you clicked Save. Fixed by only toggling `loading` on
+  the very first fetch, not on every background refresh.
+- Verified the full lifecycle end-to-end: created a brand-new test order ("Logistics QA Test
+  Item" / QA Logistics Corp), advanced it pending → production → ready via the Factory view,
+  dispatched it as Owner, then on `/logistics` expanded the card, filled in container/vehicle/
+  customs fields, saved (confirmed panel stays open — the bug above), added a document, and
+  clicked Mark Delivered (confirmed status chip → Delivered, Active Shipments KPI → 0, all step
+  chips → done). Zero console errors throughout. This is new data I created and drove through
+  the app myself — no pre-existing order was touched (dispatching one of the real orders was
+  correctly blocked earlier in Phase 2 and I didn't attempt to work around that here either).
+- Two test records now sit in the live DB from verification across phases: "Test Widget XL"
+  (Phase 1, still pending) and "Logistics QA Test Item" (Phase 3, now delivered with logistics
+  data). Left in place per your instruction to keep things as-is for now.
+
+### Phase 4 — Theme (next)
+Not started. See plan file for scope: `ThemeContext`, `[data-theme='dark']` CSS custom-property
+overrides layered onto the existing `:root` block in `App.css` (zero per-file edits needed since
+all page CSS already consumes those vars), toggle control in `TopNav`, `FactoryDashboard.css`
+stays exempt (always dark by design).

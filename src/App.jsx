@@ -5,6 +5,7 @@ import OwnerDashboard from './pages/OwnerDashboard'
 import FactoryDashboard from './pages/FactoryDashboard'
 import AdminPanel from './pages/AdminPanel'
 import Analytics from './pages/Analytics'
+import Logistics from './pages/Logistics'
 
 const CREDENTIALS = {
   [import.meta.env.VITE_OWNER_USERNAME || 'owner']: {
@@ -149,6 +150,16 @@ export default function App() {
         element={
           user ? (
             <Analytics user={user} onLogout={handleLogout} />
+          ) : (
+            <Navigate to="/" replace />
+          )
+        }
+      />
+      <Route
+        path="/logistics"
+        element={
+          user ? (
+            <Logistics user={user} onLogout={handleLogout} />
           ) : (
             <Navigate to="/" replace />
           )
