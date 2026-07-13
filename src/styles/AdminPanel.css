@@ -48,16 +48,16 @@
   color: var(--text-muted);
 }
 
-.stat-total     { background: #eff6ff; border-color: #bfdbfe; }
+.stat-total     { background: var(--info-bg); border-color: var(--info-border); }
 .stat-total     .stat-number { color: var(--primary); }
-.stat-pending   .stat-number { color: #92400e; }
-.stat-pending   { background: var(--warning-bg); border-color: #fde68a; }
-.stat-production .stat-number { color: #1e40af; }
-.stat-production { background: var(--info-bg); border-color: #bfdbfe; }
-.stat-ready     .stat-number { color: #166534; }
-.stat-ready     { background: var(--success-bg); border-color: #bbf7d0; }
+.stat-pending   .stat-number { color: var(--warning-text); }
+.stat-pending   { background: var(--warning-bg); border-color: var(--warning-border); }
+.stat-production .stat-number { color: var(--info-text); }
+.stat-production { background: var(--info-bg); border-color: var(--info-border); }
+.stat-ready     .stat-number { color: var(--success-text); }
+.stat-ready     { background: var(--success-bg); border-color: var(--success-border); }
 .stat-dispatched .stat-number { color: var(--text-muted); }
-.stat-dispatched { background: #f1f5f9; border-color: var(--border); }
+.stat-dispatched { background: var(--neutral-bg); border-color: var(--border); }
 
 /* ── Bar chart ─────────────────────────── */
 .chart-card {

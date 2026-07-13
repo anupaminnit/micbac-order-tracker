@@ -33,8 +33,8 @@
   border: 1px solid var(--border);
   border-radius: var(--radius-lg);
 }
-.logistics-kpi.kpi-warn { background: var(--warning-bg); border-color: #fde68a; }
-.logistics-kpi.kpi-good { background: var(--success-bg); border-color: #a7f3d0; }
+.logistics-kpi.kpi-warn { background: var(--warning-bg); border-color: var(--warning-border); }
+.logistics-kpi.kpi-good { background: var(--success-bg); border-color: var(--success-border); }
 .kpi-count { font-size: 26px; font-weight: 700; color: var(--text); line-height: 1; }
 .kpi-label {
   font-size: 11px;
@@ -78,10 +78,10 @@
   font-weight: 700;
   white-space: nowrap;
 }
-.chip-done     { background: var(--success-bg); color: #065f46; }
-.chip-progress { background: var(--info-bg); color: #1e40af; }
-.chip-issue    { background: var(--danger-bg); color: #991b1b; }
-.chip-pending  { background: #f1f5f9; color: var(--text-muted); }
+.chip-done     { background: var(--success-bg); color: var(--success-text); }
+.chip-progress { background: var(--info-bg); color: var(--info-text); }
+.chip-issue    { background: var(--danger-bg); color: var(--danger-text); }
+.chip-pending  { background: var(--neutral-bg); color: var(--text-muted); }
 
 .step-chips { display: flex; gap: 6px; flex-wrap: wrap; margin-bottom: 12px; }
 

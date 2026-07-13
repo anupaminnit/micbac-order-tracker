@@ -1,8 +1,10 @@
-import { LogOut } from 'lucide-react'
+import { LogOut, Sun, Moon } from 'lucide-react'
 import markLight from '../assets/mark-light.png'
+import { useTheme } from '../contexts/ThemeContext'
 import '../styles/TopNav.css'
 
 export default function TopNav({ user, activePath, onLogout, children }) {
+  const { theme, toggleTheme } = useTheme()
   const navLinks = [
     { path: user.role === 'admin' ? '/admin' : '/owner', label: 'Orders' },
     { path: '/analytics', label: 'Analytics' },
@@ -38,6 +40,13 @@ export default function TopNav({ user, activePath, onLogout, children }) {
       </nav>
       <div className="header-actions">
         {children}
+        <button
+          className="btn-icon"
+          onClick={toggleTheme}
+          title={theme === 'dark' ? 'Switch to light mode' : 'Switch to dark mode'}
+        >
+          {theme === 'dark' ? <Sun size={16} /> : <Moon size={16} />}
+        </button>
         <span className="header-user">{user.username}</span>
         <button className="btn-secondary" onClick={onLogout}>
           <LogOut size={16} /> Logout

@@ -99,8 +99,34 @@ codebase across 4 phases: Orders redesign, Analytics, Logistics, Theme. Full pla
   (Phase 1, still pending) and "Logistics QA Test Item" (Phase 3, now delivered with logistics
   data). Left in place per your instruction to keep things as-is for now.
 
-### Phase 4 — Theme (next)
-Not started. See plan file for scope: `ThemeContext`, `[data-theme='dark']` CSS custom-property
-overrides layered onto the existing `:root` block in `App.css` (zero per-file edits needed since
-all page CSS already consumes those vars), toggle control in `TopNav`, `FactoryDashboard.css`
-stays exempt (always dark by design).
+### Phase 4 — Theme (done)
+- New `src/contexts/ThemeContext.jsx`: reads `localStorage['micbac-theme']`, falls back to
+  `prefers-color-scheme`, sets `document.documentElement.dataset.theme`, persists on toggle.
+  Wraps `<App/>` in `main.jsx`.
+- `App.css`: added `[data-theme='dark']` block redefining the existing `:root` tokens
+  (`--bg`/`--surface`/`--border`/`--border-dark`/`--text`/`--text-muted`/`--text-light`/
+  `--shadow*`) plus new semantic-text/border tokens (`--success-text`, `--warning-text`,
+  `--danger-text`, `--info-text`, `--success-border`, `--warning-border`, `--danger-border`,
+  `--info-border`, `--neutral-bg`, `--low-text`).
+- **Correction to the plan's "zero per-file edits" assumption**: that held for layout tokens
+  (bg/surface/border/text), but several status-color classes across `App.css` (badges),
+  `AdminPanel.css` (stat boxes), `OrderTable.css` (priority badges, overdue row, audit
+  transition), `Logistics.css` (step chips, KPI tint cards), and `Analytics.css` (on-time-rate
+  KPI) had hardcoded hex text colors paired with the `*-bg` vars — those pairs would've gone
+  illegible against a dark surface (dark text on a translucent dark tint). Converted all of them
+  to the new semantic tokens so the dark override actually reaches every status color, not just
+  page chrome. `FactoryDashboard.css` stays fully exempt, as planned — it doesn't use the token
+  system at all and remains permanently dark.
+- Toggle control (sun/moon icon) added to `TopNav`, next to Logout.
+- Verified: toggled dark on `/owner`, confirmed Orders/Analytics/Logistics all flip instantly
+  with legible status/priority/chip colors in both themes; reloaded and confirmed the choice
+  persisted via `localStorage`; opened `/factory` with dark mode active elsewhere and confirmed
+  it stays its own permanently-dark navy, unaffected by the toggle. Zero console errors.
+
+## Redesign complete
+All 4 phases of the Claude Design handoff are now built and verified against the live Supabase
+project. Test data created during verification ("Test Widget XL", "Logistics QA Test Item") is
+still in the live DB — left in place per your instruction. Not yet deployed to GitHub Pages
+(`anupaminnit.github.io/micbac-order-tracker` still serves the old pre-redesign build) — that
+needs a separate explicit go-ahead before running `npm run deploy`, per the "ask before
+publishing" rule.
