@@ -48,6 +48,47 @@ form {
   padding: 20px 24px;
 }
 
+/* ── Priority selector ─────────────────── */
+.priority-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 8px;
+  margin-bottom: 16px;
+}
+
+.priority-card {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+  padding: 10px 6px;
+  border: 1.5px solid var(--border);
+  border-radius: var(--radius);
+  background: var(--surface);
+  color: var(--text-muted);
+  font-size: 12px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all var(--t);
+}
+.priority-emoji { font-size: 18px; }
+.priority-card.priority-selected { border-color: var(--border-dark); background: var(--bg); color: var(--text); }
+
+/* ── Attachments dropzone ──────────────── */
+.attachment-dropzone {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  padding: 20px 12px;
+  border: 2px dashed var(--border);
+  border-radius: var(--radius);
+  background: var(--bg);
+  color: var(--text-muted);
+  font-size: 13px;
+  text-align: center;
+}
+
 .form-grid {
   display: grid;
   grid-template-columns: 1fr 1fr;

@@ -36,6 +36,12 @@
 .stat-card.active .stat-count,
 .stat-card.active .stat-label { color: white; }
 
+.stat-card.stat-static { cursor: default; }
+.stat-card.stat-urgent .stat-count,
+.stat-card.stat-urgent .stat-label { color: var(--danger); }
+.stat-card.stat-overdue .stat-count,
+.stat-card.stat-overdue .stat-label { color: var(--warning); }
+
 .stat-count {
   font-size: 26px;
   font-weight: 700;
@@ -108,6 +114,18 @@
   border-color: var(--primary-light);
 }
 .date-filters span { color: var(--text-muted); font-size: 13px; }
+
+.priority-filter {
+  padding: 7px 10px;
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  font-size: 13px;
+  color: var(--text);
+  background: var(--surface);
+  outline: none;
+  font-family: inherit;
+  cursor: pointer;
+}
 
 /* ── Content area ──────────────────────── */
 .dashboard-content {

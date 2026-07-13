@@ -1,15 +1,27 @@
 import { useState } from 'react'
-import { X, Save } from 'lucide-react'
+import { X, Save, Paperclip } from 'lucide-react'
 import { createOrder } from '../lib/supabase'
 import '../styles/OrderForm.css'
+
+const PRIORITIES = [
+  { value: 'urgent', label: 'Urgent', emoji: '🔴' },
+  { value: 'high', label: 'High', emoji: '🟠' },
+  { value: 'normal', label: 'Normal', emoji: '🔵' },
+  { value: 'low', label: 'Low', emoji: '⚪' },
+]
 
 const INITIAL = {
   item: '',
   quantity: '',
   customer: '',
+  po_number: '',
+  order_value: '',
+  priority: 'normal',
   packaging: 'box',
+  packing_type: '',
   branding: 'unbranded',
   readiness_date: '',
+  delivery_address: '',
   notes: '',
 }
 
@@ -32,7 +44,17 @@ export default function OrderForm({ user, onClose, onSuccess }) {
     setLoading(true)
     setError('')
     try {
-      await createOrder({ ...form, quantity: parseInt(form.quantity, 10) }, user.username)
+      await createOrder(
+        {
+          ...form,
+          quantity: parseInt(form.quantity, 10),
+          order_value: form.order_value ? parseFloat(form.order_value) : null,
+          po_number: form.po_number || null,
+          packing_type: form.packing_type || null,
+          delivery_address: form.delivery_address || null,
+        },
+        user.username,
+      )
       onSuccess()
     } catch (err) {
       setError(err.message)
@@ -60,8 +82,22 @@ export default function OrderForm({ user, onClose, onSuccess }) {
         </div>
 
         <form onSubmit={handleSubmit}>
+          <div className="priority-grid">
+            {PRIORITIES.map(({ value, label, emoji }) => (
+              <button
+                key={value}
+                type="button"
+                className={`priority-card priority-${value} ${form.priority === value ? 'priority-selected' : ''}`}
+                onClick={() => setForm((f) => ({ ...f, priority: value }))}
+              >
+                <span className="priority-emoji">{emoji}</span>
+                {label}
+              </button>
+            ))}
+          </div>
+
           <div className="form-grid">
-            <div className="form-group">
+            <div className="form-group form-group-full">
               <label htmlFor="item">Item / Product *</label>
               <input
                 id="item"
@@ -72,6 +108,31 @@ export default function OrderForm({ user, onClose, onSuccess }) {
                 placeholder="e.g. Steel Rods 10mm"
                 required
                 autoFocus
+              />
+            </div>
+
+            <div className="form-group">
+              <label htmlFor="customer">Customer *</label>
+              <input
+                id="customer"
+                name="customer"
+                type="text"
+                value={form.customer}
+                onChange={handleChange}
+                placeholder="e.g. Acme Corp"
+                required
+              />
+            </div>
+
+            <div className="form-group">
+              <label htmlFor="po_number">PO Number</label>
+              <input
+                id="po_number"
+                name="po_number"
+                type="text"
+                value={form.po_number}
+                onChange={handleChange}
+                placeholder="e.g. PO-10234"
               />
             </div>
 
@@ -90,15 +151,16 @@ export default function OrderForm({ user, onClose, onSuccess }) {
             </div>
 
             <div className="form-group">
-              <label htmlFor="customer">Customer *</label>
+              <label htmlFor="order_value">Order Value (USD)</label>
               <input
-                id="customer"
-                name="customer"
-                type="text"
-                value={form.customer}
+                id="order_value"
+                name="order_value"
+                type="number"
+                value={form.order_value}
                 onChange={handleChange}
-                placeholder="e.g. Acme Corp"
-                required
+                placeholder="e.g. 12000"
+                min="0"
+                step="0.01"
               />
             </div>
 
@@ -116,12 +178,26 @@ export default function OrderForm({ user, onClose, onSuccess }) {
             </div>
 
             <div className="form-group">
+              <label htmlFor="packing_type">Packing Type</label>
+              <input
+                id="packing_type"
+                name="packing_type"
+                type="text"
+                value={form.packing_type}
+                onChange={handleChange}
+                placeholder="e.g. 25kg bags on pallet"
+              />
+            </div>
+
+            <div className="form-group">
               <label htmlFor="packaging">Packaging</label>
               <select id="packaging" name="packaging" value={form.packaging} onChange={handleChange}>
                 <option value="box">Box</option>
                 <option value="bag">Bag</option>
                 <option value="bulk">Bulk</option>
                 <option value="pallet">Pallet</option>
+                <option value="drum">Drum</option>
+                <option value="jumbo_bag">Jumbo Bag</option>
                 <option value="custom">Custom</option>
               </select>
             </div>
@@ -136,6 +212,18 @@ export default function OrderForm({ user, onClose, onSuccess }) {
             </div>
 
             <div className="form-group form-group-full">
+              <label htmlFor="delivery_address">Delivery Address</label>
+              <input
+                id="delivery_address"
+                name="delivery_address"
+                type="text"
+                value={form.delivery_address}
+                onChange={handleChange}
+                placeholder="e.g. 12 Dock Rd, Mumbai Port, India"
+              />
+            </div>
+
+            <div className="form-group form-group-full">
               <label htmlFor="notes">Notes</label>
               <textarea
                 id="notes"
@@ -145,6 +233,14 @@ export default function OrderForm({ user, onClose, onSuccess }) {
                 placeholder="Special instructions, references…"
                 rows={3}
               />
+            </div>
+
+            <div className="form-group form-group-full">
+              <label>Attachments</label>
+              <div className="attachment-dropzone">
+                <Paperclip size={18} />
+                <span>Drag files here or click to upload (coming soon)</span>
+              </div>
             </div>
           </div>
 

@@ -1,5 +1,6 @@
 import { useState, useEffect, useCallback } from 'react'
-import { LogOut, RefreshCw, Download, BarChart2 } from 'lucide-react'
+import { RefreshCw, Download, BarChart2 } from 'lucide-react'
+import TopNav from '../components/TopNav'
 import OrderTable from '../components/OrderTable'
 import { getOrders, getOrderStats, exportOrdersToCSV } from '../lib/supabase'
 import '../styles/AdminPanel.css'
@@ -52,23 +53,14 @@ export default function AdminPanel({ user, onLogout }) {
 
   return (
     <div className="admin-panel">
-      <header className="dashboard-header">
-        <div className="header-brand">
-          <h1>MICBAC Admin Panel</h1>
-          <span className="header-user">Admin: {user.username}</span>
-        </div>
-        <div className="header-actions">
-          <button className="btn-icon" onClick={fetchData} title="Refresh">
-            <RefreshCw size={18} />
-          </button>
-          <button className="btn-secondary" onClick={() => exportOrdersToCSV(orders)}>
-            <Download size={16} /> Export
-          </button>
-          <button className="btn-secondary" onClick={onLogout}>
-            <LogOut size={16} /> Logout
-          </button>
-        </div>
-      </header>
+      <TopNav user={user} activePath="/admin" onLogout={onLogout}>
+        <button className="btn-icon" onClick={fetchData} title="Refresh">
+          <RefreshCw size={18} />
+        </button>
+        <button className="btn-secondary" onClick={() => exportOrdersToCSV(orders)}>
+          <Download size={16} /> Export
+        </button>
+      </TopNav>
 
       <div className="admin-analytics">
         <div className="stat-grid">

@@ -1,0 +1,65 @@
+.dashboard-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 14px 24px;
+  background: var(--primary);
+  color: white;
+  gap: 16px;
+  flex-wrap: wrap;
+}
+
+.header-brand { display: flex; align-items: center; gap: 10px; }
+.header-logo { width: 28px; height: 28px; border-radius: 6px; }
+.header-brand h1 { font-size: 18px; font-weight: 700; color: white; line-height: 1.2; }
+
+.role-badge {
+  display: inline-block;
+  margin-top: 2px;
+  padding: 1px 7px;
+  border-radius: 100px;
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 0.4px;
+  text-transform: uppercase;
+}
+.role-owner { background: var(--accent); color: white; }
+.role-admin { background: #dc2626; color: white; }
+
+.header-nav { display: flex; align-items: center; gap: 2px; flex-wrap: wrap; }
+.nav-link {
+  padding: 6px 12px;
+  border-radius: var(--radius-sm);
+  font-size: 13px;
+  font-weight: 500;
+  color: rgba(255, 255, 255, 0.75);
+  text-decoration: none;
+  cursor: pointer;
+  transition: background var(--t), color var(--t);
+}
+.nav-link:hover { background: rgba(255, 255, 255, 0.1); color: white; }
+.nav-active { background: rgba(255, 255, 255, 0.16); color: white; }
+.nav-disabled { opacity: 0.4; cursor: not-allowed; }
+.nav-disabled:hover { background: none; }
+
+.header-actions { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
+.header-user { font-size: 13px; color: rgba(255, 255, 255, 0.75); }
+
+.header-actions .btn-icon {
+  background: rgba(255, 255, 255, 0.12);
+  border-color: rgba(255, 255, 255, 0.2);
+  color: white;
+}
+.header-actions .btn-icon:hover { background: rgba(255, 255, 255, 0.22); }
+.header-actions .btn-secondary {
+  background: rgba(255, 255, 255, 0.12);
+  border-color: rgba(255, 255, 255, 0.2);
+  color: white;
+}
+.header-actions .btn-secondary:hover { background: rgba(255, 255, 255, 0.22); }
+.header-actions .btn-primary { background: var(--accent); }
+.header-actions .btn-primary:hover { background: var(--accent-hover); }
+
+@media (max-width: 640px) {
+  .header-nav { order: 3; width: 100%; justify-content: center; }
+}
