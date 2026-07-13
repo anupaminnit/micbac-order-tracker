@@ -5,7 +5,7 @@ import '../styles/TopNav.css'
 export default function TopNav({ user, activePath, onLogout, children }) {
   const navLinks = [
     { path: user.role === 'admin' ? '/admin' : '/owner', label: 'Orders' },
-    { path: '/analytics', label: 'Analytics', disabled: true },
+    { path: '/analytics', label: 'Analytics' },
     { path: '/logistics', label: 'Logistics', disabled: true },
     { path: '/factory', label: 'Factory View' },
   ]

@@ -39,7 +39,33 @@ codebase across 4 phases: Orders redesign, Analytics, Logistics, Theme. Full pla
 - One test order ("Test Widget XL" / PO-99001) was created in the live DB during verification —
   left in place, flagged here in case you want it removed.
 
-### Phase 2 — Analytics (next)
-Not started. See plan file for scope: `src/lib/analytics.js`, `src/pages/Analytics.jsx`,
-`/analytics` route, KPI cards + monthly revenue bar + status donut + top customers + factory
-throughput, all plain CSS/SVG.
+### Phase 2 — Analytics (done)
+- New `src/lib/analytics.js` (`getAnalyticsSummary()`), kept separate from `supabase.js` per
+  plan. Fetches `orders` + `audit_trail` and reduces client-side: monthly revenue (last 6
+  months, by dispatch month), on-time rate (dispatched on/before `readiness_date`), avg
+  production days (paired "Started Production" → "Marked Ready" audit_trail timestamps per
+  order), active pipeline value/count, top 4 customers by order value, status distribution.
+  All divide-by-zero paths guarded (`Math.max(..., 1)`), matching `AdminPanel.jsx`'s existing
+  pattern.
+- New `src/pages/Analytics.jsx` + `src/styles/Analytics.css`: KPI row, monthly revenue bar
+  chart, order-status donut (inline `conic-gradient`, no library), top-customers progress bars,
+  factory throughput bars. Zero-value bars get a `Math.max(pct, 2)` floor so they stay visibly
+  present instead of disappearing.
+- `/analytics` route added to `App.jsx`, guarded like `/owner` (any logged-in user, no
+  mutations happen on this page so no role restriction needed). Analytics nav link enabled in
+  `TopNav`.
+- Verified against live data as both roles: page renders with zero console errors even though
+  the live project currently has 0 dispatched orders (all KPIs correctly show `$0`/`0%`/`0 days`
+  rather than `NaN` or crashing; the one test order's $4,200 value shows up correctly in Active
+  Pipeline and Top Customers).
+- Did **not** dispatch a real order to test the revenue/on-time-rate math with non-zero data —
+  the auto-mode permission classifier correctly blocked that (would have permanently mutated one
+  of the 3 real pre-existing orders' status just for a test). Confirmed the aggregation logic by
+  code review instead. Worth a manual dispatch + re-check next time you're in the app if you want
+  to see the non-zero-data path.
+
+### Phase 3 — Logistics (next)
+Not started. See plan file for scope: `logistics`/`logistics_documents` migration,
+`src/lib/logistics.js`, `src/pages/Logistics.jsx`, `/logistics` route, KPI strip + per-order
+shipment cards with step-chips/progress bar + expandable Container/Vehicle/Customs/Documents
+panels.

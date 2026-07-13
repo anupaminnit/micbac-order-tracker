@@ -4,6 +4,7 @@ import { Package, LogIn } from 'lucide-react'
 import OwnerDashboard from './pages/OwnerDashboard'
 import FactoryDashboard from './pages/FactoryDashboard'
 import AdminPanel from './pages/AdminPanel'
+import Analytics from './pages/Analytics'
 
 const CREDENTIALS = {
   [import.meta.env.VITE_OWNER_USERNAME || 'owner']: {
@@ -138,6 +139,16 @@ export default function App() {
         element={
           user?.role === 'admin' ? (
             <AdminPanel user={user} onLogout={handleLogout} />
+          ) : (
+            <Navigate to="/" replace />
+          )
+        }
+      />
+      <Route
+        path="/analytics"
+        element={
+          user ? (
+            <Analytics user={user} onLogout={handleLogout} />
           ) : (
             <Navigate to="/" replace />
           )

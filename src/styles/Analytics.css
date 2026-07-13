@@ -1,0 +1,131 @@
+.analytics-page {
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  background: var(--bg);
+}
+
+.analytics-content {
+  flex: 1;
+  padding: 20px 24px;
+  max-width: 1300px;
+  width: 100%;
+  margin: 0 auto;
+}
+
+.analytics-header { margin-bottom: 20px; }
+.analytics-header h1 { font-size: 22px; font-weight: 700; color: var(--text); margin-bottom: 3px; }
+.analytics-header p { font-size: 13px; color: var(--text-muted); }
+
+/* ── KPI row ────────────────────────────── */
+.kpi-row {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+  gap: 14px;
+  margin-bottom: 18px;
+}
+
+.kpi-card {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  padding: 18px 20px;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+}
+
+.kpi-hero { background: var(--primary); border-color: var(--primary); }
+.kpi-hero .kpi-label { color: rgba(255, 255, 255, 0.7); }
+.kpi-hero .kpi-value { color: white; }
+
+.kpi-label {
+  font-size: 10px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  color: var(--text-muted);
+}
+.kpi-value { font-size: 26px; font-weight: 700; color: var(--text); letter-spacing: -0.5px; }
+.kpi-value.kpi-success { color: #166534; }
+.kpi-unit { font-size: 14px; font-weight: 500; color: var(--text-muted); }
+.kpi-sub { font-size: 12px; color: var(--text-muted); }
+.kpi-growth { font-size: 12px; font-weight: 500; }
+.kpi-growth.growth-up { color: #4ade80; }
+.kpi-growth.growth-down { color: #f87171; }
+
+/* ── Chart cards ────────────────────────── */
+.chart-row {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 16px;
+  margin-bottom: 16px;
+}
+
+.chart-card {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+  padding: 20px;
+}
+.chart-card h3 { font-size: 14px; font-weight: 700; color: var(--text); margin-bottom: 2px; }
+.chart-sub { font-size: 12px; color: var(--text-muted); margin-bottom: 18px; }
+.chart-empty { font-size: 13px; color: var(--text-muted); }
+
+/* ── Vertical bar chart ─────────────────── */
+.bar-chart-v {
+  display: flex;
+  align-items: flex-end;
+  gap: 8px;
+  height: 140px;
+  border-bottom: 1px solid var(--border);
+  padding-bottom: 4px;
+}
+.bar-col {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 4px;
+  height: 100%;
+}
+.bar-value { font-size: 10px; color: var(--text-muted); font-weight: 500; white-space: nowrap; }
+.bar-v { width: 100%; background: var(--primary); border-radius: 3px 3px 0 0; min-height: 2px; }
+.bar-v.bar-green { background: #16a34a; }
+.bar-month { font-size: 10px; color: var(--text-light); font-weight: 500; margin-top: 4px; }
+
+/* ── Donut ──────────────────────────────── */
+.donut-row {
+  display: flex;
+  align-items: center;
+  gap: 24px;
+  justify-content: center;
+  flex-wrap: wrap;
+}
+.donut {
+  width: 110px;
+  height: 110px;
+  border-radius: 50%;
+  mask: radial-gradient(farthest-side, transparent calc(100% - 20px), #000 calc(100% - 20px));
+  -webkit-mask: radial-gradient(farthest-side, transparent calc(100% - 20px), #000 calc(100% - 20px));
+}
+.donut-legend { display: flex; flex-direction: column; gap: 9px; }
+.legend-item { display: flex; align-items: center; gap: 8px; min-width: 130px; }
+.legend-dot { width: 10px; height: 10px; border-radius: 3px; flex-shrink: 0; }
+.legend-label { font-size: 12px; color: var(--text); flex: 1; }
+.legend-count { font-size: 13px; font-weight: 700; color: var(--text); }
+
+/* ── Top customers ──────────────────────── */
+.customer-list { display: flex; flex-direction: column; gap: 14px; }
+.customer-top { display: flex; justify-content: space-between; align-items: center; margin-bottom: 5px; }
+.customer-name { font-size: 13px; font-weight: 600; color: var(--text); }
+.customer-value { font-size: 13px; font-weight: 700; color: var(--text); }
+.progress-track { height: 6px; background: var(--bg); border-radius: 100px; overflow: hidden; }
+.progress-fill { height: 100%; background: var(--primary); border-radius: 100px; }
+.customer-orders { font-size: 11px; color: var(--text-light); margin-top: 3px; display: block; }
+
+/* ── Responsive ─────────────────────────── */
+@media (max-width: 900px) {
+  .chart-row { grid-template-columns: 1fr; }
+}
