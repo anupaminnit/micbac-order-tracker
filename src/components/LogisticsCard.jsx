@@ -6,7 +6,7 @@ import {
   updateLogistics,
   markDelivered,
   getLogisticsDocuments,
-  addLogisticsDocument,
+  uploadLogisticsDocument,
 } from '../lib/logistics'
 import '../styles/Logistics.css'
 
@@ -57,7 +57,7 @@ export default function LogisticsCard({ order, logistics, docCount, onChange, ca
   const [current, setCurrent] = useState(logistics)
   const [form, setForm] = useState(logistics || {})
   const [docs, setDocs] = useState(null)
-  const [newDoc, setNewDoc] = useState({ doc_type: DOC_TYPES[0], file_url: '' })
+  const [newDoc, setNewDoc] = useState({ doc_type: DOC_TYPES[0], file: null })
   const [loadingPanel, setLoadingPanel] = useState(false)
   const [saving, setSaving] = useState(false)
   const [error, setError] = useState(null)
@@ -145,13 +145,13 @@ export default function LogisticsCard({ order, logistics, docCount, onChange, ca
   }
 
   const handleAddDoc = async () => {
-    if (!newDoc.file_url.trim()) return
+    if (!newDoc.file) return
     setSaving(true)
     setError(null)
     try {
-      const doc = await addLogisticsDocument(current.id, newDoc.doc_type, newDoc.file_url.trim())
+      const doc = await uploadLogisticsDocument(current.id, newDoc.doc_type, newDoc.file)
       setDocs((d) => [doc, ...(d || [])])
-      setNewDoc({ doc_type: DOC_TYPES[0], file_url: '' })
+      setNewDoc({ doc_type: DOC_TYPES[0], file: null })
       onChange()
     } catch (err) {
       setError(err.message)
@@ -326,13 +326,11 @@ export default function LogisticsCard({ order, logistics, docCount, onChange, ca
                       ))}
                     </select>
                     <input
-                      type="text"
-                      placeholder="Document URL"
-                      value={newDoc.file_url}
-                      onChange={(e) => setNewDoc((d) => ({ ...d, file_url: e.target.value }))}
+                      type="file"
+                      onChange={(e) => setNewDoc((d) => ({ ...d, file: e.target.files[0] || null }))}
                     />
-                    <button className="btn-secondary" onClick={handleAddDoc} disabled={saving}>
-                      Add
+                    <button className="btn-secondary" onClick={handleAddDoc} disabled={saving || !newDoc.file}>
+                      {saving ? 'Uploading…' : 'Upload'}
                     </button>
                   </div>
                 </div>

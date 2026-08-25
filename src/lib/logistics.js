@@ -94,3 +94,16 @@ export async function addLogisticsDocument(logisticsId, docType, fileUrl) {
   if (error) throw error
   return data
 }
+
+// Uploads to the public logistics-documents bucket, then records the resulting URL. Owner-only
+// (storage policy enforces this server-side too — see supabase/migrations for the bucket setup).
+export async function uploadLogisticsDocument(logisticsId, docType, file) {
+  const ext = file.name.includes('.') ? file.name.split('.').pop() : 'bin'
+  const path = `${logisticsId}/${docType}-${Date.now()}.${ext}`
+  const { error: uploadError } = await supabase.storage.from('logistics-documents').upload(path, file)
+  if (uploadError) throw uploadError
+  const {
+    data: { publicUrl },
+  } = supabase.storage.from('logistics-documents').getPublicUrl(path)
+  return addLogisticsDocument(logisticsId, docType, publicUrl)
+}
