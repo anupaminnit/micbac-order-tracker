@@ -1,6 +1,7 @@
 import { useState } from 'react'
 import { X, Save, Paperclip } from 'lucide-react'
 import { createOrder } from '../lib/supabase'
+import { localDateStr } from '../lib/dates'
 import '../styles/OrderForm.css'
 
 const PRIORITIES = [
@@ -63,7 +64,7 @@ export default function OrderForm({ user, onClose, onSuccess }) {
     }
   }
 
-  const today = new Date().toISOString().split('T')[0]
+  const today = localDateStr()
 
   return (
     <div

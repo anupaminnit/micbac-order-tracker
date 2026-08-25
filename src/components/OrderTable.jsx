@@ -1,6 +1,7 @@
 import React, { Fragment, useState, useCallback } from 'react'
 import { ChevronDown, ChevronRight, Truck } from 'lucide-react'
 import { getAuditTrail } from '../lib/supabase'
+import { localDateStr } from '../lib/dates'
 import { useIsMobile } from '../hooks/useIsMobile'
 import '../styles/OrderTable.css'
 
@@ -42,7 +43,7 @@ const PRIORITY_DOT = {
 const currency = (n) =>
   n == null ? '—' : new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD', maximumFractionDigits: 0 }).format(n)
 
-const today = () => new Date().toISOString().split('T')[0]
+const today = () => localDateStr()
 
 function PriorityBadge({ priority }) {
   return (

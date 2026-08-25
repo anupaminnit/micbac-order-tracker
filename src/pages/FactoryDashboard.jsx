@@ -1,6 +1,7 @@
 import { useState, useEffect, useCallback } from 'react'
 import { RefreshCw, CheckCircle, PlayCircle, Package, Clock } from 'lucide-react'
 import { getOrders, updateOrderStatus } from '../lib/supabase'
+import { localDateStr } from '../lib/dates'
 import '../styles/FactoryDashboard.css'
 
 const STATUS_CLASS = {
@@ -48,14 +49,9 @@ export default function FactoryDashboard() {
     }
   }
 
-  const isDueToday = (dateStr) => {
-    const today = new Date().toISOString().split('T')[0]
-    return dateStr === today
-  }
+  const isDueToday = (dateStr) => dateStr === localDateStr()
 
-  const isOverdue = (dateStr) => {
-    return dateStr < new Date().toISOString().split('T')[0]
-  }
+  const isOverdue = (dateStr) => dateStr < localDateStr()
 
   return (
     <div className="factory-dashboard">

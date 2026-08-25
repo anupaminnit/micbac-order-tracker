@@ -1,4 +1,5 @@
 import { supabase } from './supabase'
+import { localDateStr } from './dates'
 
 const MONTHS = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec']
 
@@ -52,9 +53,10 @@ export async function getAnalyticsSummary() {
     pct: (throughputByMonth[`${m.year}-${m.month}`] / maxThroughput) * 100,
   }))
 
-  // On-time rate: dispatched on/before readiness_date
+  // On-time rate: dispatched on/before readiness_date (local calendar date, not UTC —
+  // see src/lib/dates.js for why that distinction matters here)
   const onTimeCount = dispatched.filter(
-    (o) => o.updated_at.split('T')[0] <= o.readiness_date,
+    (o) => localDateStr(new Date(o.updated_at)) <= o.readiness_date,
   ).length
   const onTimeRate = dispatched.length ? Math.round((onTimeCount / dispatched.length) * 100) : 0
 

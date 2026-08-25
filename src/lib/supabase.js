@@ -1,4 +1,5 @@
 import { createClient } from '@supabase/supabase-js'
+import { localDateStr } from './dates'
 
 // Schema source of truth: supabase/migrations/ (applied via `supabase db push`).
 
@@ -107,7 +108,7 @@ export async function getOrderStats() {
     .select('status, priority, order_value, readiness_date')
   if (error) throw error
 
-  const today = new Date().toISOString().split('T')[0]
+  const today = localDateStr()
   const stats = {
     pending: 0,
     production: 0,
