@@ -48,12 +48,13 @@
 .col-action { width: 110px; text-align: center; }
 .cell-item  { font-weight: 600; }
 .cell-date  { white-space: nowrap; }
-.cell-po    { color: var(--text-muted); font-family: monospace; font-size: 12px; }
+.cell-po    { color: var(--text-muted); font-family: 'JetBrains Mono', monospace; font-size: 12px; }
 
 /* ── Priority badge ─────────────────────── */
 .priority-badge {
   display: inline-flex;
   align-items: center;
+  gap: 4px;
   padding: 3px 10px;
   border-radius: 100px;
   font-size: 11px;
@@ -61,6 +62,7 @@
   letter-spacing: 0.3px;
   white-space: nowrap;
 }
+.priority-dot { width: 5px; height: 5px; border-radius: 50%; flex-shrink: 0; }
 .priority-urgent { background: var(--danger-bg); color: var(--danger-text); }
 .priority-high   { background: var(--warning-bg); color: var(--warning-text); }
 .priority-normal { background: var(--info-bg); color: var(--info-text); }
@@ -105,10 +107,11 @@
 }
 
 .detail-panel {
-  padding: 16px 20px 20px;
+  padding: 16px 20px 16px 24px;
   display: flex;
   flex-direction: column;
   gap: 16px;
+  border-left: 3px solid transparent;
 }
 
 .detail-grid {
@@ -181,46 +184,62 @@
   padding-top: 2px;
 }
 
-/* ── Responsive ────────────────────────── */
+/* ── Responsive (desktop table only; <=768px renders .order-cards instead) ── */
 @media (max-width: 900px) {
   .detail-grid { grid-template-columns: repeat(2, 1fr); }
   .detail-span-2 { grid-column: span 1; }
 }
 
-@media (max-width: 640px) {
-  .order-table thead { display: none; }
+/* ── Mobile card list (replaces the table below 768px) ─────────────────── */
+.order-cards {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
 
-  .order-table, .order-table tbody, .order-table tr, .order-table td {
-    display: block;
-    width: 100%;
-  }
+.order-card {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-left: 3px solid transparent;
+  border-radius: var(--radius);
+  overflow: hidden;
+  cursor: pointer;
+}
+.order-card-overdue { background: var(--danger-bg); }
 
-  .order-row {
-    padding: 10px 14px;
-    border-bottom: 6px solid var(--bg);
-  }
+.order-card-top {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 8px;
+  padding: 14px 14px 8px;
+}
+.order-card-heading { flex: 1; min-width: 0; }
+.order-card-item { font-size: 14px; font-weight: 700; color: var(--text); line-height: 1.3; }
+.order-card-customer { font-size: 12px; color: var(--text-muted); margin-top: 2px; }
+.order-card-po { font-size: 10px; color: var(--text-light); font-family: 'JetBrains Mono', monospace; margin-top: 1px; }
 
-  .order-table td {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    gap: 12px;
-    padding: 4px 0;
-    text-align: right;
-  }
-  .order-table td::before {
-    content: attr(data-label);
-    font-size: 11px;
-    font-weight: 700;
-    text-transform: uppercase;
-    letter-spacing: 0.4px;
-    color: var(--text-muted);
-    text-align: left;
-  }
-  .order-table td[data-label=""]::before { content: none; }
-  .col-expand { padding-left: 0; justify-content: flex-end; }
-  .cell-item { justify-content: space-between; text-align: right; }
-  .col-action { width: auto; }
+.order-card-bottom {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 6px;
+  padding: 0 14px 14px;
+}
+.order-card-status { display: flex; align-items: center; gap: 6px; }
+.order-card-meta { display: flex; align-items: center; gap: 10px; }
+.order-card-value { font-size: 14px; font-weight: 700; color: var(--text); }
+.cell-date-overdue { color: var(--danger-text); font-weight: 600; }
 
-  .detail-row td { padding: 0; }
+.order-card-detail {
+  border-top: 1px solid var(--border);
+  background: var(--bg);
+}
+.order-card-detail .detail-panel { padding: 14px 14px 14px 18px; }
+.btn-dispatch-full {
+  width: calc(100% - 28px);
+  margin: 0 14px 14px;
+  justify-content: center;
+  padding: 11px;
 }

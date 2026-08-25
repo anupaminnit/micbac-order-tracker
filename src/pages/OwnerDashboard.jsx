@@ -4,6 +4,7 @@ import TopNav from '../components/TopNav'
 import OrderForm from '../components/OrderForm'
 import OrderTable from '../components/OrderTable'
 import { getOrders, getOrderStats, exportOrdersToCSV, updateOrderStatus } from '../lib/supabase'
+import { useIsMobile } from '../hooks/useIsMobile'
 import '../styles/OwnerDashboard.css'
 
 const STATUS_TABS = [
@@ -32,6 +33,7 @@ export default function OwnerDashboard({ user, onLogout }) {
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState(null)
   const [showForm, setShowForm] = useState(false)
+  const isMobile = useIsMobile()
   const [filters, setFilters] = useState({
     status: 'all',
     priority: 'all',
@@ -83,16 +85,18 @@ export default function OwnerDashboard({ user, onLogout }) {
         <button className="btn-icon" onClick={fetchData} title="Refresh">
           <RefreshCw size={18} />
         </button>
-        <button className="btn-primary" onClick={() => setShowForm(true)}>
-          <Plus size={16} /> New Order
-        </button>
+        {!isMobile && (
+          <button className="btn-primary" onClick={() => setShowForm(true)}>
+            <Plus size={16} /> New Order
+          </button>
+        )}
       </TopNav>
 
       <div className="stats-bar">
         {STATUS_TABS.map(({ key, label }) => (
           <button
             key={key}
-            className={`stat-card ${filters.status === key && filters.priority === 'all' ? 'active' : ''}`}
+            className={`stat-card stat-${key} ${filters.status === key && filters.priority === 'all' ? 'active' : ''}`}
             onClick={() => setStatusFilter(key)}
           >
             <span className="stat-count">{key === 'all' ? stats.total : stats[key] || 0}</span>
@@ -193,6 +197,12 @@ export default function OwnerDashboard({ user, onLogout }) {
             fetchData()
           }}
         />
+      )}
+
+      {isMobile && (
+        <button className="fab-new-order" onClick={() => setShowForm(true)} aria-label="New Order">
+          <Plus size={22} />
+        </button>
       )}
     </div>
   )

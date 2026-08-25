@@ -73,6 +73,10 @@ form {
 }
 .priority-emoji { font-size: 18px; }
 .priority-card.priority-selected { border-color: var(--border-dark); background: var(--bg); color: var(--text); }
+.priority-card.priority-urgent.priority-selected { border-color: var(--danger-text); background: var(--danger-bg); color: var(--danger-text); }
+.priority-card.priority-high.priority-selected { border-color: var(--warning-text); background: var(--warning-bg); color: var(--warning-text); }
+.priority-card.priority-normal.priority-selected { border-color: var(--info-text); background: var(--info-bg); color: var(--info-text); }
+.priority-card.priority-low.priority-selected { border-color: var(--low-text); background: var(--neutral-bg); color: var(--low-text); }
 
 /* ── Attachments dropzone ──────────────── */
 .attachment-dropzone {
@@ -105,15 +109,20 @@ form {
   display: flex;
   justify-content: flex-end;
   gap: 10px;
-  padding-top: 16px;
+  padding: 16px 24px;
   border-top: 1px solid var(--border);
-  margin-top: 16px;
+  margin: 16px -24px -20px;
+  background: var(--surface);
+  position: sticky;
+  bottom: 0;
+  border-radius: 0 0 var(--radius-lg) var(--radius-lg);
 }
 
 /* ── Responsive ────────────────────────── */
 @media (max-width: 480px) {
   .modal-content { max-height: 100vh; border-radius: 0; }
   .modal-overlay { padding: 0; align-items: flex-end; }
+  .modal-footer { border-radius: 0; }
   .form-grid { grid-template-columns: 1fr; }
   .form-group-full { grid-column: 1; }
   .modal-footer { flex-direction: column-reverse; }
