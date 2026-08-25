@@ -1,25 +1,16 @@
 import { Routes, Route, Navigate } from 'react-router-dom'
 import { useState, useEffect } from 'react'
-import { Package, LogIn } from 'lucide-react'
+import { LogIn } from 'lucide-react'
+import { supabase, signIn, signOut, getProfile } from './lib/supabase'
+import markLight from './assets/mark-light.png'
 import OwnerDashboard from './pages/OwnerDashboard'
 import FactoryDashboard from './pages/FactoryDashboard'
 import AdminPanel from './pages/AdminPanel'
 import Analytics from './pages/Analytics'
 import Logistics from './pages/Logistics'
 
-const CREDENTIALS = {
-  [import.meta.env.VITE_OWNER_USERNAME || 'owner']: {
-    password: import.meta.env.VITE_OWNER_PASSWORD || 'micbac2024',
-    role: 'owner',
-  },
-  [import.meta.env.VITE_ADMIN_USERNAME || 'admin']: {
-    password: import.meta.env.VITE_ADMIN_PASSWORD || 'admin2024',
-    role: 'admin',
-  },
-}
-
 function LoginPage({ onLogin }) {
-  const [username, setUsername] = useState('')
+  const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
   const [error, setError] = useState('')
   const [loading, setLoading] = useState(false)
@@ -28,32 +19,39 @@ function LoginPage({ onLogin }) {
     e.preventDefault()
     setLoading(true)
     setError('')
-    await new Promise((r) => setTimeout(r, 300))
-    const cred = CREDENTIALS[username]
-    if (cred && cred.password === password) {
-      onLogin({ username, role: cred.role })
-    } else {
-      setError('Invalid username or password')
+    try {
+      const session = await signIn(email, password)
+      const profile = await getProfile(session.user.id)
+      onLogin({ id: session.user.id, email: profile.email, username: profile.username, role: profile.role })
+    } catch {
+      setError('Invalid email or password')
+    } finally {
+      setLoading(false)
     }
-    setLoading(false)
   }
 
   return (
     <div className="login-page">
       <div className="login-card">
-        <div className="login-logo">
-          <Package size={40} />
+        <div className="login-brand">
+          <div className="login-logo">
+            <img src={markLight} alt="" />
+          </div>
+          <div>
+            <div className="login-brand-name">MICBAC INDIA</div>
+            <div className="login-brand-sub">Order Management System</div>
+          </div>
         </div>
-        <h1>MICBAC Order Tracker</h1>
-        <p className="login-subtitle">Manufacturing Order Management System</p>
+        <h2 className="login-heading">Welcome back</h2>
+        <p className="login-subtitle">Sign in to your dashboard</p>
         <form onSubmit={handleSubmit}>
           <div className="form-group">
-            <label>Username</label>
+            <label>Email</label>
             <input
-              type="text"
-              value={username}
-              onChange={(e) => setUsername(e.target.value)}
-              placeholder="Enter username"
+              type="email"
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
+              placeholder="Enter email"
               required
               autoFocus
             />
@@ -79,10 +77,11 @@ function LoginPage({ onLogin }) {
             )}
           </button>
         </form>
-        <div className="login-divider">or</div>
-        <a href="#/factory" className="btn-secondary btn-full factory-link">
-          Factory Interface — No Login Required
-        </a>
+        <div className="login-secondary">
+          <a href="#/factory" className="btn-secondary btn-full factory-link">
+            Factory Interface — No Login Required
+          </a>
+        </div>
       </div>
     </div>
   )
@@ -90,26 +89,57 @@ function LoginPage({ onLogin }) {
 
 export default function App() {
   const [user, setUser] = useState(null)
+  const [checkingSession, setCheckingSession] = useState(true)
 
   useEffect(() => {
-    const stored = localStorage.getItem('micbac_user')
-    if (stored) {
-      try {
-        setUser(JSON.parse(stored))
-      } catch {
-        localStorage.removeItem('micbac_user')
+    let cancelled = false
+
+    async function loadFromSession(session) {
+      if (!session) {
+        if (!cancelled) setUser(null)
+        return
       }
+      try {
+        const profile = await getProfile(session.user.id)
+        if (!cancelled) {
+          setUser({ id: session.user.id, email: profile.email, username: profile.username, role: profile.role })
+        }
+      } catch {
+        if (!cancelled) setUser(null)
+      }
+    }
+
+    supabase.auth.getSession().then(({ data }) => {
+      loadFromSession(data.session).finally(() => {
+        if (!cancelled) setCheckingSession(false)
+      })
+    })
+
+    const { data: subscription } = supabase.auth.onAuthStateChange((_event, session) => {
+      loadFromSession(session)
+    })
+
+    return () => {
+      cancelled = true
+      subscription.subscription.unsubscribe()
     }
   }, [])
 
   const handleLogin = (userData) => {
     setUser(userData)
-    localStorage.setItem('micbac_user', JSON.stringify(userData))
   }
 
-  const handleLogout = () => {
+  const handleLogout = async () => {
+    await signOut()
     setUser(null)
-    localStorage.removeItem('micbac_user')
+  }
+
+  if (checkingSession) {
+    return (
+      <div className="login-page">
+        <p className="loading-state">Loading…</p>
+      </div>
+    )
   }
 
   return (

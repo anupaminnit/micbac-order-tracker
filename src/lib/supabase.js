@@ -7,6 +7,25 @@ const supabaseAnonKey = import.meta.env.VITE_SUPABASE_ANON_KEY
 
 export const supabase = createClient(supabaseUrl || '', supabaseAnonKey || '')
 
+export async function signIn(email, password) {
+  const { data, error } = await supabase.auth.signInWithPassword({ email, password })
+  if (error) throw error
+  return data.session
+}
+
+export async function signOut() {
+  const { error } = await supabase.auth.signOut()
+  if (error) throw error
+}
+
+// profiles row is the source of truth for role (owner/admin) — RLS on public.profiles only
+// lets a session read its own row, so this always reflects who's actually signed in.
+export async function getProfile(userId) {
+  const { data, error } = await supabase.from('profiles').select('*').eq('id', userId).single()
+  if (error) throw error
+  return data
+}
+
 export async function getOrders({ status, priority, search, dateFrom, dateTo } = {}) {
   let query = supabase.from('orders').select('*').order('created_at', { ascending: false })
 
@@ -21,6 +40,8 @@ export async function getOrders({ status, priority, search, dateFrom, dateTo } =
   return data
 }
 
+// createdBy/changedBy below are only a fallback: the stamp_created_by/stamp_changed_by
+// triggers overwrite them with the authenticated caller's profile email server-side.
 export async function createOrder(orderData, createdBy) {
   const { data, error } = await supabase
     .from('orders')
