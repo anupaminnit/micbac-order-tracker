@@ -35,9 +35,9 @@
   border-radius: var(--radius-lg);
 }
 
-.kpi-hero { background: var(--primary); border-color: var(--primary); }
-.kpi-hero .kpi-label { color: rgba(255, 255, 255, 0.7); }
-.kpi-hero .kpi-value { color: white; }
+.kpi-hero { background: var(--kpi-card); border-color: var(--kpi-card); }
+.kpi-hero .kpi-label { color: var(--kpi-card-text); opacity: 0.7; }
+.kpi-hero .kpi-value { color: var(--kpi-card-text); }
 
 .kpi-label {
   font-size: 10px;
@@ -91,7 +91,7 @@
   height: 100%;
 }
 .bar-value { font-size: 10px; color: var(--text-muted); font-weight: 500; white-space: nowrap; }
-.bar-v { width: 100%; background: var(--primary); border-radius: 3px 3px 0 0; min-height: 2px; }
+.bar-v { width: 100%; background: var(--chart-bar); border-radius: 3px 3px 0 0; min-height: 2px; }
 .bar-v.bar-green { background: #16a34a; }
 .bar-month { font-size: 10px; color: var(--text-light); font-weight: 500; margin-top: 4px; }
 
@@ -122,7 +122,7 @@
 .customer-name { font-size: 13px; font-weight: 600; color: var(--text); }
 .customer-value { font-size: 13px; font-weight: 700; color: var(--text); }
 .progress-track { height: 6px; background: var(--bg); border-radius: 100px; overflow: hidden; }
-.progress-fill { height: 100%; background: var(--primary); border-radius: 100px; }
+.progress-fill { height: 100%; background: var(--chart-bar); border-radius: 100px; }
 .customer-orders { font-size: 11px; color: var(--text-light); margin-top: 3px; display: block; }
 
 /* ── Responsive ─────────────────────────── */

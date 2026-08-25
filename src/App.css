@@ -15,6 +15,9 @@
   --primary-light: #18171b;
   --accent: #18171b;
   --accent-hover: #302e2a;
+  --kpi-card: #18171b;
+  --kpi-card-text: #ffffff;
+  --chart-bar: #18171b;
   --success: #10b981;
   --success-bg: #f0fdf4;
   --success-border: #a7f3d0;
@@ -56,6 +59,9 @@
   --primary-light: #f0ede8;
   --accent: #f0ede8;
   --accent-hover: #d6d2cb;
+  --kpi-card: #272420;
+  --kpi-card-text: #f0ede8;
+  --chart-bar: #c8e63d;
   --success-bg: rgba(16, 185, 129, 0.1);
   --success-border: rgba(16, 185, 129, 0.22);
   --success-text: #34d399;
