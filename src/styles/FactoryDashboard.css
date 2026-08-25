@@ -1,11 +1,72 @@
-/* Deliberately exempt from the app's light/dark theme system — Factory stays permanently
-   dark (a floor tablet, not a themed dashboard), so this file uses hardcoded colors, not the
-   shared CSS variables from App.css. */
+/* Own light/dark toggle, independent of the rest of the app (localStorage key
+   'micbac-factory-theme', set via FactoryDashboard.jsx) — this is a floor tablet, likely a
+   shared device separate from anyone's owner/admin login, so its theme preference is its own,
+   not tied to the app's global toggle. Defaults to dark. */
 .factory-dashboard {
+  --f-bg: #0d0c09;
+  --f-surface: #191714;
+  --f-surface2: rgba(255, 255, 255, 0.04);
+  --f-border: #242220;
+  --f-border2: #1e1c18;
+  --f-text: #f0ede8;
+  --f-text-muted: #c4c0ba;
+  --f-text-light: #7a7570;
+  --f-text-faint: #6b6860;
+  --f-accent: #c8e63d;
+  --f-accent-bg: rgba(200, 230, 61, 0.1);
+  --f-accent-border: rgba(200, 230, 61, 0.25);
+  --f-blue: #60a5fa;
+  --f-blue-bg: rgba(59, 130, 246, 0.12);
+  --f-blue-border: rgba(59, 130, 246, 0.28);
+  --f-blue-dot: #3b82f6;
+  --f-danger: #ef4444;
+  --f-danger-bg-solid: #160909;
+  --f-danger-border-solid: #2d1010;
+  --f-warning: #fbbf24;
+  --f-error-bg: #2d1010;
+  --f-error-text: #fca5a5;
+  --f-btn-start-bg: #c8e63d;
+  --f-btn-start-text: #0d0c09;
+  --f-btn-ready-bg: #ffffff;
+  --f-btn-ready-text: #0d0c09;
+  --f-notes-bg: rgba(255, 255, 255, 0.03);
+  --f-shadow: 0 4px 24px rgba(0, 0, 0, 0.4);
+
   min-height: 100vh;
-  background: #0d0c09;
-  color: #f0ede8;
+  background: var(--f-bg);
+  color: var(--f-text);
   font-family: 'Inter Tight', 'Plus Jakarta Sans', system-ui, sans-serif;
+}
+
+.factory-dashboard[data-factory-theme='light'] {
+  --f-bg: #f5f4f1;
+  --f-surface: #ffffff;
+  --f-surface2: #f5f4f1;
+  --f-border: #e8e5e2;
+  --f-border2: #ece9e6;
+  --f-text: #18171b;
+  --f-text-muted: #3d3a37;
+  --f-text-light: #8c8680;
+  --f-text-faint: #a8a29e;
+  --f-accent: #78850a;
+  --f-accent-bg: #fffbeb;
+  --f-accent-border: #fde68a;
+  --f-blue: #1e40af;
+  --f-blue-bg: #eff6ff;
+  --f-blue-border: #bfdbfe;
+  --f-blue-dot: #3b82f6;
+  --f-danger: #991b1b;
+  --f-danger-bg-solid: #fff5f5;
+  --f-danger-border-solid: #fca5a5;
+  --f-warning: #b45309;
+  --f-error-bg: #fee2e2;
+  --f-error-text: #991b1b;
+  --f-btn-start-bg: #c8e63d;
+  --f-btn-start-text: #18171b;
+  --f-btn-ready-bg: #18171b;
+  --f-btn-ready-text: #ffffff;
+  --f-notes-bg: #faf9f8;
+  --f-shadow: 0 1px 3px rgba(0, 0, 0, 0.08);
 }
 
 .factory-shell {
@@ -19,8 +80,8 @@
 /* ── Header ────────────────────────────── */
 .factory-header {
   padding: 14px 16px 12px;
-  background: #0d0c09;
-  border-bottom: 1px solid #1e1c18;
+  background: var(--f-bg);
+  border-bottom: 1px solid var(--f-border2);
   position: sticky;
   top: 0;
   z-index: 10;
@@ -30,19 +91,47 @@
   display: flex;
   align-items: center;
   justify-content: space-between;
+  gap: 8px;
 }
 
-.factory-brand { display: flex; align-items: center; gap: 12px; }
+.factory-brand { display: flex; align-items: center; gap: 12px; min-width: 0; }
 .factory-logo { width: 40px; height: 40px; flex-shrink: 0; }
 .factory-brand-name { font-size: 17px; font-weight: 800; letter-spacing: -0.4px; line-height: 1.15; }
 .factory-brand-sub {
   font-size: 10px;
   font-weight: 600;
-  color: #c8e63d;
+  color: var(--f-accent);
   letter-spacing: 1.8px;
   text-transform: uppercase;
   margin-top: 1px;
 }
+
+.factory-header-actions { display: flex; align-items: center; gap: 6px; flex-shrink: 0; }
+
+/* Simple, unambiguous two-button control — no icon-only toggle whose current state has to be
+   inferred, since the reading level this needs to work for shouldn't be assumed. */
+.theme-switch {
+  display: flex;
+  border: 1px solid var(--f-border2);
+  border-radius: 8px;
+  overflow: hidden;
+}
+.theme-switch-btn {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  padding: 7px 8px;
+  background: var(--f-surface2);
+  border: none;
+  color: var(--f-text-light);
+  font-size: 11px;
+  font-weight: 700;
+  cursor: pointer;
+  font-family: inherit;
+  white-space: nowrap;
+}
+.theme-switch-btn + .theme-switch-btn { border-left: 1px solid var(--f-border2); }
+.theme-switch-btn-active { background: var(--f-accent-bg); color: var(--f-accent); }
 
 .btn-refresh {
   display: flex;
@@ -50,14 +139,14 @@
   justify-content: center;
   width: 36px;
   height: 36px;
-  background: rgba(255, 255, 255, 0.04);
-  border: 1px solid #2a2820;
+  background: var(--f-surface2);
+  border: 1px solid var(--f-border2);
   border-radius: 8px;
-  color: #c4c0ba;
+  color: var(--f-text-muted);
   cursor: pointer;
   flex-shrink: 0;
 }
-.btn-refresh:hover:not(:disabled) { background: rgba(255, 255, 255, 0.08); }
+.btn-refresh:hover:not(:disabled) { opacity: 0.8; }
 .btn-refresh:disabled { opacity: 0.5; cursor: default; }
 .spin { animation: factory-spin 1s linear infinite; }
 @keyframes factory-spin { to { transform: rotate(360deg); } }
@@ -73,10 +162,10 @@
   font-weight: 700;
 }
 .count-dot { width: 7px; height: 7px; border-radius: 50%; flex-shrink: 0; }
-.count-pill-prod { background: rgba(59, 130, 246, 0.1); border: 1px solid rgba(59, 130, 246, 0.22); color: #60a5fa; }
-.count-dot-prod { background: #3b82f6; }
-.count-pill-pend { background: rgba(200, 230, 61, 0.08); border: 1px solid rgba(200, 230, 61, 0.2); color: #c8e63d; }
-.count-dot-pend { background: #c8e63d; }
+.count-pill-prod { background: var(--f-blue-bg); border: 1px solid var(--f-blue-border); color: var(--f-blue); }
+.count-dot-prod { background: var(--f-blue-dot); }
+.count-pill-pend { background: var(--f-accent-bg); border: 1px solid var(--f-accent-border); color: var(--f-accent); }
+.count-dot-pend { background: var(--f-accent); }
 
 /* ── Error banner ──────────────────────── */
 .factory-error {
@@ -84,12 +173,12 @@
   align-items: center;
   justify-content: space-between;
   padding: 10px 16px;
-  background: #2d1010;
-  color: #fca5a5;
+  background: var(--f-error-bg);
+  color: var(--f-error-text);
   font-size: 13px;
   gap: 12px;
 }
-.factory-error button { background: none; border: none; color: #fca5a5; cursor: pointer; font-size: 16px; }
+.factory-error button { background: none; border: none; color: var(--f-error-text); cursor: pointer; font-size: 16px; }
 
 /* ── Body / states ─────────────────────── */
 .factory-body {
@@ -110,24 +199,24 @@
   gap: 16px;
   padding: 60px 24px;
   text-align: center;
-  color: #7a7570;
+  color: var(--f-text-light);
 }
 .factory-empty-mark { width: 70px; height: 70px; opacity: 0.2; margin-bottom: 8px; }
-.factory-empty h2 { font-size: 24px; font-weight: 800; color: #f0ede8; }
+.factory-empty h2 { font-size: 24px; font-weight: 800; color: var(--f-text); }
 .factory-empty p { font-size: 14px; max-width: 240px; }
 
 /* ── Card ──────────────────────────────── */
 .factory-card {
-  background: #191714;
-  border: 1px solid #242220;
-  border-left: 4px solid #c8e63d;
+  background: var(--f-surface);
+  border: 1px solid var(--f-border);
+  border-left: 4px solid var(--f-accent);
   border-radius: 16px;
   overflow: hidden;
-  box-shadow: 0 4px 24px rgba(0, 0, 0, 0.4);
+  box-shadow: var(--f-shadow);
   padding: 0 18px 18px;
 }
-.factory-card-today { border-left-color: #c8e63d; }
-.factory-card-overdue { background: #160909; border-color: #2d1010; border-left-color: #ef4444; }
+.factory-card-today { border-left-color: var(--f-accent); }
+.factory-card-overdue { background: var(--f-danger-bg-solid); border-color: var(--f-danger-border-solid); border-left-color: var(--f-danger); }
 
 .factory-card-top {
   display: flex;
@@ -149,26 +238,26 @@
 }
 .factory-badge-dot { width: 6px; height: 6px; border-radius: 50%; flex-shrink: 0; }
 .factory-badge-pending {
-  background: rgba(200, 230, 61, 0.1);
-  color: #c8e63d;
-  border: 1px solid rgba(200, 230, 61, 0.25);
+  background: var(--f-accent-bg);
+  color: var(--f-accent);
+  border: 1px solid var(--f-accent-border);
 }
-.factory-badge-pending .factory-badge-dot { background: #c8e63d; box-shadow: 0 0 6px #c8e63d; }
+.factory-badge-pending .factory-badge-dot { background: var(--f-accent); box-shadow: 0 0 6px var(--f-accent); }
 .factory-badge-production {
-  background: rgba(59, 130, 246, 0.12);
-  color: #60a5fa;
-  border: 1px solid rgba(59, 130, 246, 0.28);
+  background: var(--f-blue-bg);
+  color: var(--f-blue);
+  border: 1px solid var(--f-blue-border);
 }
-.factory-badge-production .factory-badge-dot { background: #3b82f6; box-shadow: 0 0 6px #3b82f6; }
+.factory-badge-production .factory-badge-dot { background: var(--f-blue-dot); box-shadow: 0 0 6px var(--f-blue-dot); }
 
-.factory-date { font-size: 12px; font-weight: 700; color: #3d3a37; flex-shrink: 0; }
-.factory-date-today { color: #fbbf24; }
-.factory-date-overdue { color: #ef4444; }
+.factory-date { font-size: 12px; font-weight: 700; color: var(--f-text-faint); flex-shrink: 0; }
+.factory-date-today { color: var(--f-warning); }
+.factory-date-overdue { color: var(--f-danger); }
 
 .factory-card-item {
   font-size: 20px;
   font-weight: 700;
-  color: #f0ede8;
+  color: var(--f-text);
   line-height: 1.25;
   letter-spacing: -0.4px;
   padding-bottom: 4px;
@@ -183,14 +272,14 @@
 .factory-qty {
   font-size: 44px;
   font-weight: 600;
-  color: #ffffff;
+  color: var(--f-text);
   font-family: 'JetBrains Mono', monospace;
   letter-spacing: -2px;
   line-height: 1;
 }
-.factory-qty-unit { font-size: 18px; font-weight: 400; color: #c4c0ba; font-family: 'JetBrains Mono', monospace; }
+.factory-qty-unit { font-size: 18px; font-weight: 400; color: var(--f-text-muted); font-family: 'JetBrains Mono', monospace; }
 
-.factory-divider { height: 1px; background: #1e1c18; margin: 0 0 12px; }
+.factory-divider { height: 1px; background: var(--f-border2); margin: 0 0 12px; }
 
 .factory-fields {
   display: flex;
@@ -202,22 +291,40 @@
 .factory-field-label {
   font-size: 10px;
   font-weight: 700;
-  color: #2d2b26;
+  color: var(--f-text-faint);
   text-transform: uppercase;
   letter-spacing: 0.7px;
   width: 70px;
   flex-shrink: 0;
   padding-top: 2px;
 }
-.factory-field-value { font-size: 14px; font-weight: 500; color: #c4c0ba; flex: 1; text-transform: capitalize; }
+.factory-field-value { font-size: 14px; font-weight: 500; color: var(--f-text-muted); flex: 1; text-transform: capitalize; }
+
+.factory-branding-block {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  padding: 12px 14px;
+  margin-bottom: 12px;
+  background: var(--f-accent-bg);
+  border: 1px solid var(--f-accent-border);
+  border-radius: 10px;
+}
+.factory-branding-block .factory-field-label { padding-top: 0; }
+/* BrandingShowcase's own CSS (Branding.css) uses the app's shared theme tokens — override here
+   so it matches Factory's own independent theme instead. */
+.factory-branding-block .branding-showcase-img { border-color: var(--f-border); }
+.factory-branding-block .branding-showcase-zoom-hint { border-color: var(--f-surface); }
+.factory-branding-block .branding-showcase-label,
+.factory-branding-block .branding-showcase-text { color: var(--f-text); }
 
 .factory-notes {
-  background: rgba(255, 255, 255, 0.03);
-  border: 1px solid #1e1c18;
+  background: var(--f-notes-bg);
+  border: 1px solid var(--f-border2);
   border-radius: 9px;
   padding: 10px 13px;
   font-size: 13px;
-  color: #7a7570;
+  color: var(--f-text-light);
   line-height: 1.55;
   margin-bottom: 14px;
 }
@@ -225,7 +332,7 @@
   display: block;
   font-size: 10px;
   font-weight: 700;
-  color: #2d2b26;
+  color: var(--f-text-faint);
   text-transform: uppercase;
   letter-spacing: 0.7px;
   margin-bottom: 5px;
@@ -246,16 +353,16 @@
   font-family: 'Inter Tight', sans-serif;
 }
 .factory-action:disabled { opacity: 0.55; cursor: not-allowed; }
-.factory-action-start { background: #c8e63d; color: #0d0c09; }
-.factory-action-ready { background: #ffffff; color: #0d0c09; }
+.factory-action-start { background: var(--f-btn-start-bg); color: var(--f-btn-start-text); }
+.factory-action-ready { background: var(--f-btn-ready-bg); color: var(--f-btn-ready-text); }
 
 /* ── Footer ────────────────────────────── */
 .factory-footer {
   padding: 12px 16px;
   text-align: center;
   font-size: 11px;
-  color: #4a4845;
-  border-top: 1px solid #1e1c18;
+  color: var(--f-text-faint);
+  border-top: 1px solid var(--f-border2);
 }
-.factory-footer a { color: #6b6860; }
-.factory-footer a:hover { color: #c4c0ba; }
+.factory-footer a { color: var(--f-text-light); }
+.factory-footer a:hover { color: var(--f-text-muted); }

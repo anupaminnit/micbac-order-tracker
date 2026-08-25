@@ -1,11 +1,14 @@
 import { useState, useEffect, useCallback } from 'react'
-import { RefreshCw, PlayCircle, CheckCircle2 } from 'lucide-react'
+import { RefreshCw, PlayCircle, CheckCircle2, Sun, Moon } from 'lucide-react'
 import { getOrders, updateOrderStatus } from '../lib/supabase'
 import { localDateStr } from '../lib/dates'
 import markLight from '../assets/mark-light.png'
+import markDark from '../assets/mark-dark.png'
+import BrandingShowcase from '../components/BrandingShowcase'
 import '../styles/FactoryDashboard.css'
 
 const POLL_INTERVAL_MS = 20_000
+const THEME_STORAGE_KEY = 'micbac-factory-theme'
 
 function urgency(readinessDate) {
   const today = localDateStr()
@@ -19,6 +22,11 @@ export default function FactoryDashboard() {
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState(null)
   const [updating, setUpdating] = useState(null)
+  const [theme, setTheme] = useState(() => localStorage.getItem(THEME_STORAGE_KEY) || 'dark')
+
+  useEffect(() => {
+    localStorage.setItem(THEME_STORAGE_KEY, theme)
+  }, [theme])
 
   const fetchOrders = useCallback(async (isFirstLoad = false) => {
     if (isFirstLoad) setLoading(true)
@@ -59,20 +67,36 @@ export default function FactoryDashboard() {
   const pendCount = orders.filter((o) => o.status === 'pending').length
 
   return (
-    <div className="factory-dashboard">
+    <div className="factory-dashboard" data-factory-theme={theme}>
       <div className="factory-shell">
         <header className="factory-header">
           <div className="factory-header-top">
             <div className="factory-brand">
-              <img src={markLight} alt="" className="factory-logo" />
+              <img src={theme === 'light' ? markDark : markLight} alt="" className="factory-logo" />
               <div>
                 <div className="factory-brand-name">MICBAC INDIA</div>
                 <div className="factory-brand-sub">Activated Carbon · Factory</div>
               </div>
             </div>
-            <button className="btn-refresh" onClick={() => fetchOrders(true)} disabled={loading} title="Refresh">
-              <RefreshCw size={16} className={loading ? 'spin' : ''} />
-            </button>
+            <div className="factory-header-actions">
+              <div className="theme-switch">
+                <button
+                  className={`theme-switch-btn ${theme === 'light' ? 'theme-switch-btn-active' : ''}`}
+                  onClick={() => setTheme('light')}
+                >
+                  <Sun size={14} /> Light
+                </button>
+                <button
+                  className={`theme-switch-btn ${theme === 'dark' ? 'theme-switch-btn-active' : ''}`}
+                  onClick={() => setTheme('dark')}
+                >
+                  <Moon size={14} /> Dark
+                </button>
+              </div>
+              <button className="btn-refresh" onClick={() => fetchOrders(true)} disabled={loading} title="Refresh">
+                <RefreshCw size={16} className={loading ? 'spin' : ''} />
+              </button>
+            </div>
           </div>
           <div className="factory-counts">
             <span className="count-pill count-pill-prod">
@@ -101,7 +125,7 @@ export default function FactoryDashboard() {
             </div>
           ) : orders.length === 0 ? (
             <div className="factory-empty">
-              <img src={markLight} alt="" className="factory-empty-mark" />
+              <img src={theme === 'light' ? markDark : markLight} alt="" className="factory-empty-mark" />
               <h2>All clear!</h2>
               <p>No pending or in-production orders right now.</p>
             </div>
@@ -144,10 +168,11 @@ export default function FactoryDashboard() {
                       <span className="factory-field-label">Packaging</span>
                       <span className="factory-field-value">{order.packaging}</span>
                     </div>
-                    <div className="factory-field">
-                      <span className="factory-field-label">Branding</span>
-                      <span className="factory-field-value">{order.branding}</span>
-                    </div>
+                  </div>
+
+                  <div className="factory-branding-block">
+                    <span className="factory-field-label">Branding to use</span>
+                    <BrandingShowcase label={order.branding} />
                   </div>
 
                   {order.notes && (
