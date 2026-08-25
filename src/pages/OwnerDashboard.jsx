@@ -74,6 +74,9 @@ export default function OwnerDashboard({ user, onLogout }) {
     } catch (err) {
       setError(err.message)
     }
+    // Freightysh email notification (notifyDispatch, src/lib/supabase.js) is built but not
+    // wired in yet — paused pending Resend domain verification for micbacindia.com. Re-add a
+    // call to notifyDispatch(orderId) here (non-blocking, own try/catch) once that's done.
   }
 
   const setStatusFilter = (status) => setFilters((f) => ({ ...f, status, priority: 'all' }))

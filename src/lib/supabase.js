@@ -91,6 +91,17 @@ export async function updateOrderStatus(orderId, newStatus, changedBy, currentSt
   return data
 }
 
+// Best-effort: caller should dispatch the order regardless of whether this succeeds and
+// surface a distinct (non-blocking) warning if it throws — the order's own status change
+// already happened via updateOrderStatus.
+export async function notifyDispatch(orderId) {
+  const { data, error } = await supabase.functions.invoke('send-dispatch-notification', {
+    body: { orderId },
+  })
+  if (error) throw error
+  return data
+}
+
 export async function getAuditTrail(orderId) {
   const { data, error } = await supabase
     .from('audit_trail')
