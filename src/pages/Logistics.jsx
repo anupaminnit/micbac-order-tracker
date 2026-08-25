@@ -102,6 +102,7 @@ export default function Logistics({ user, onLogout }) {
                   logistics={logistics}
                   docCount={logistics ? docCounts[logistics.id] || 0 : 0}
                   onChange={fetchData}
+                  canEdit={user.role === 'owner'}
                 />
               ))}
             </div>

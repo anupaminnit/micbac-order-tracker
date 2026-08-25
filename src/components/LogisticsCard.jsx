@@ -2,6 +2,7 @@ import { useState } from 'react'
 import { ChevronDown, ChevronRight, Package, Truck, ShieldCheck, FileText } from 'lucide-react'
 import {
   getOrCreateLogistics,
+  getLogisticsIfExists,
   updateLogistics,
   markDelivered,
   getLogisticsDocuments,
@@ -51,7 +52,7 @@ function deliveryStepStatus(l) {
 
 const STEP_CLASS = { done: 'chip-done', progress: 'chip-progress', issue: 'chip-issue', pending: 'chip-pending' }
 
-export default function LogisticsCard({ order, logistics, docCount, onChange }) {
+export default function LogisticsCard({ order, logistics, docCount, onChange, canEdit }) {
   const [expanded, setExpanded] = useState(false)
   const [current, setCurrent] = useState(logistics)
   const [form, setForm] = useState(logistics || {})
@@ -89,9 +90,9 @@ export default function LogisticsCard({ order, logistics, docCount, onChange }) 
     if (!row) {
       setLoadingPanel(true)
       try {
-        row = await getOrCreateLogistics(order.id)
+        row = canEdit ? await getOrCreateLogistics(order.id) : await getLogisticsIfExists(order.id)
         setCurrent(row)
-        setForm(row)
+        setForm(row || {})
       } catch (err) {
         setError(err.message)
         setLoadingPanel(false)
@@ -191,7 +192,7 @@ export default function LogisticsCard({ order, logistics, docCount, onChange }) 
 
         <button className="btn-secondary btn-toggle" onClick={toggleExpand}>
           {expanded ? <ChevronDown size={14} /> : <ChevronRight size={14} />}
-          {expanded ? 'Hide Details' : 'View / Edit Logistics'}
+          {expanded ? 'Hide Details' : canEdit ? 'View / Edit Logistics' : 'View Logistics'}
         </button>
       </div>
 
@@ -204,11 +205,13 @@ export default function LogisticsCard({ order, logistics, docCount, onChange }) 
             </div>
           )}
 
-          {loadingPanel || !current ? (
+          {loadingPanel ? (
             <div className="loading-state">Loading…</div>
+          ) : !current ? (
+            <p className="chart-empty">Logistics details haven't been started for this order yet.</p>
           ) : (
             <>
-              <div className="logistics-detail-grid">
+              <fieldset className="logistics-detail-grid" disabled={!canEdit}>
                 <div className="detail-panel-box">
                   <div className="detail-panel-header">
                     <Package size={13} /> Container
@@ -333,18 +336,20 @@ export default function LogisticsCard({ order, logistics, docCount, onChange }) 
                     </button>
                   </div>
                 </div>
-              </div>
+              </fieldset>
 
-              <div className="logistics-detail-footer">
-                <button className="btn-secondary" onClick={handleSave} disabled={saving}>
-                  {saving ? 'Saving…' : 'Save Details'}
-                </button>
-                {effective.overall_status !== 'delivered' && (
-                  <button className="btn-primary" onClick={handleMarkDelivered} disabled={saving}>
-                    Mark Delivered
+              {canEdit && (
+                <div className="logistics-detail-footer">
+                  <button className="btn-secondary" onClick={handleSave} disabled={saving}>
+                    {saving ? 'Saving…' : 'Save Details'}
                   </button>
-                )}
-              </div>
+                  {effective.overall_status !== 'delivered' && (
+                    <button className="btn-primary" onClick={handleMarkDelivered} disabled={saving}>
+                      Mark Delivered
+                    </button>
+                  )}
+                </div>
+              )}
             </>
           )}
         </div>

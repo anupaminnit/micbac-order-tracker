@@ -86,7 +86,7 @@
 .step-chips { display: flex; gap: 6px; flex-wrap: wrap; margin-bottom: 12px; }
 
 .progress-track { height: 5px; background: var(--bg); border-radius: 100px; overflow: hidden; margin-bottom: 14px; }
-.progress-fill { height: 100%; background: var(--primary); border-radius: 100px; transition: width var(--t); }
+.progress-fill { height: 100%; background: var(--chart-bar); border-radius: 100px; transition: width var(--t); }
 
 .btn-toggle { font-size: 12px; padding: 6px 12px; }
 
@@ -102,7 +102,14 @@
   grid-template-columns: repeat(2, 1fr);
   gap: 14px;
   margin-bottom: 16px;
+  border: none;
+  padding: 0;
+  min-width: 0;
 }
+.logistics-detail-grid:disabled,
+.logistics-detail-grid[disabled] { opacity: 0.75; }
+.logistics-detail-grid[disabled] input,
+.logistics-detail-grid[disabled] select { cursor: not-allowed; background: var(--bg); }
 
 .detail-panel-box {
   background: var(--surface);

@@ -22,13 +22,16 @@ export async function getDispatchedOrdersWithLogistics() {
   return orders.map((order) => ({ order, logistics: byOrderId[order.id] || null }))
 }
 
+// Read-only: never inserts. Use for viewers who aren't allowed to write (RLS would reject
+// their insert anyway) — returns null rather than a freshly created row when none exists yet.
+export async function getLogisticsIfExists(orderId) {
+  const { data, error } = await supabase.from('logistics').select('*').eq('order_id', orderId).maybeSingle()
+  if (error) throw error
+  return data
+}
+
 export async function getOrCreateLogistics(orderId) {
-  const { data: existing, error: fetchError } = await supabase
-    .from('logistics')
-    .select('*')
-    .eq('order_id', orderId)
-    .maybeSingle()
-  if (fetchError) throw fetchError
+  const existing = await getLogisticsIfExists(orderId)
   if (existing) return existing
 
   const { data: created, error: insertError } = await supabase
