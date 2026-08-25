@@ -1,6 +1,6 @@
 import { useState } from 'react'
 import { X, Save, Paperclip } from 'lucide-react'
-import { createOrder } from '../lib/supabase'
+import { createOrder, updateOrder } from '../lib/supabase'
 import { localDateStr } from '../lib/dates'
 import BrandingPicker from './BrandingPicker'
 import '../styles/OrderForm.css'
@@ -27,8 +27,26 @@ const INITIAL = {
   notes: '',
 }
 
-export default function OrderForm({ user, onClose, onSuccess }) {
-  const [form, setForm] = useState(INITIAL)
+function toFormState(order) {
+  return {
+    item: order.item ?? '',
+    quantity: order.quantity != null ? String(order.quantity) : '',
+    customer: order.customer ?? '',
+    po_number: order.po_number ?? '',
+    order_value: order.order_value != null ? String(order.order_value) : '',
+    priority: order.priority ?? 'normal',
+    packaging: order.packaging ?? 'box',
+    packing_type: order.packing_type ?? '',
+    branding: order.branding ?? 'Default',
+    readiness_date: order.readiness_date ?? '',
+    delivery_address: order.delivery_address ?? '',
+    notes: order.notes ?? '',
+  }
+}
+
+export default function OrderForm({ user, order, onClose, onSuccess }) {
+  const isEdit = !!order
+  const [form, setForm] = useState(() => (isEdit ? toFormState(order) : INITIAL))
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState('')
 
@@ -45,18 +63,20 @@ export default function OrderForm({ user, onClose, onSuccess }) {
     }
     setLoading(true)
     setError('')
+    const payload = {
+      ...form,
+      quantity: parseInt(form.quantity, 10),
+      order_value: form.order_value ? parseFloat(form.order_value) : null,
+      po_number: form.po_number || null,
+      packing_type: form.packing_type || null,
+      delivery_address: form.delivery_address || null,
+    }
     try {
-      await createOrder(
-        {
-          ...form,
-          quantity: parseInt(form.quantity, 10),
-          order_value: form.order_value ? parseFloat(form.order_value) : null,
-          po_number: form.po_number || null,
-          packing_type: form.packing_type || null,
-          delivery_address: form.delivery_address || null,
-        },
-        user.username,
-      )
+      if (isEdit) {
+        await updateOrder(order.id, payload, user.username)
+      } else {
+        await createOrder(payload, user.username)
+      }
       onSuccess()
     } catch (err) {
       setError(err.message)
@@ -77,7 +97,7 @@ export default function OrderForm({ user, onClose, onSuccess }) {
     >
       <div className="modal-content">
         <div className="modal-header">
-          <h2 id="form-title">New Order</h2>
+          <h2 id="form-title">{isEdit ? 'Edit Order' : 'New Order'}</h2>
           <button className="btn-icon" onClick={onClose} aria-label="Close">
             <X size={20} />
           </button>
@@ -174,7 +194,7 @@ export default function OrderForm({ user, onClose, onSuccess }) {
                 type="date"
                 value={form.readiness_date}
                 onChange={handleChange}
-                min={today}
+                min={isEdit ? undefined : today}
                 required
               />
             </div>
@@ -250,7 +270,7 @@ export default function OrderForm({ user, onClose, onSuccess }) {
             </button>
             <button type="submit" className="btn-primary" disabled={loading}>
               <Save size={16} />
-              {loading ? 'Creating…' : 'Create Order'}
+              {isEdit ? (loading ? 'Saving…' : 'Save Changes') : loading ? 'Creating…' : 'Create Order'}
             </button>
           </div>
         </form>

@@ -85,7 +85,7 @@
   gap: 4px;
   padding: 5px 10px;
   background: var(--primary);
-  color: white;
+  color: var(--btn-primary-text, white);
   border: none;
   border-radius: var(--radius-sm);
   font-size: 12px;
@@ -95,6 +95,43 @@
   transition: background var(--t);
 }
 .btn-dispatch:hover { background: var(--primary-hover); }
+
+/* ── Row-level owner actions (Edit/Cancel) ─ */
+.btn-icon-sm {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 27px;
+  height: 27px;
+  margin-left: 5px;
+  border: 1px solid var(--border);
+  background: var(--surface);
+  color: var(--text-muted);
+  border-radius: var(--radius-sm);
+  cursor: pointer;
+}
+.btn-icon-sm:hover { color: var(--text); border-color: var(--border-dark); }
+
+.btn-danger-outline {
+  color: var(--danger-text);
+  border-color: var(--danger-border);
+}
+.btn-danger-outline:hover { background: var(--danger-bg); }
+
+.detail-owner-actions {
+  display: flex;
+  justify-content: flex-end;
+  padding: 0 20px 16px;
+}
+
+.order-card-owner-actions {
+  display: flex;
+  gap: 8px;
+  padding: 0 14px 14px;
+}
+.order-card-owner-actions .btn-secondary { flex: 1; justify-content: center; }
+
+.badge-cancelled { background: var(--neutral-bg); color: var(--low-text); text-decoration: line-through; }
 
 /* ── Detail / expanded row ─────────────── */
 .detail-row {

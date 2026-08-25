@@ -1,5 +1,5 @@
 import React, { Fragment, useState, useCallback } from 'react'
-import { ChevronDown, ChevronRight, Truck } from 'lucide-react'
+import { ChevronDown, ChevronRight, Truck, Pencil, Ban } from 'lucide-react'
 import { getAuditTrail } from '../lib/supabase'
 import { localDateStr } from '../lib/dates'
 import { useIsMobile } from '../hooks/useIsMobile'
@@ -11,6 +11,7 @@ const STATUS_CLASS = {
   production: 'badge-production',
   ready: 'badge-ready',
   dispatched: 'badge-dispatched',
+  cancelled: 'badge-cancelled',
 }
 
 const STATUS_LABEL = {
@@ -18,6 +19,7 @@ const STATUS_LABEL = {
   production: 'In Production',
   ready: 'Ready',
   dispatched: 'Dispatched',
+  cancelled: 'Cancelled',
 }
 
 const PRIORITY_CLASS = {
@@ -122,7 +124,7 @@ function OrderDetail({ order, auditCache, loadingAudit }) {
   )
 }
 
-export default function OrderTable({ orders, role, onDispatch, onRefresh, user }) {
+export default function OrderTable({ orders, role, onDispatch, onEdit, onCancel, onRefresh, user }) {
   const [expanded, setExpanded] = useState(null)
   const [auditCache, setAuditCache] = useState({})
   const [loadingAudit, setLoadingAudit] = useState(null)
@@ -193,6 +195,18 @@ export default function OrderTable({ orders, role, onDispatch, onRefresh, user }
                     <button className="btn-dispatch btn-dispatch-full" onClick={() => onDispatch(order.id, order.status)}>
                       <Truck size={14} /> Mark as Dispatched
                     </button>
+                  )}
+                  {role === 'owner' && (
+                    <div className="order-card-owner-actions">
+                      <button className="btn-secondary" onClick={() => onEdit(order)}>
+                        <Pencil size={14} /> Edit Order
+                      </button>
+                      {order.status !== 'cancelled' && (
+                        <button className="btn-secondary btn-danger-outline" onClick={() => onCancel(order.id, order.status)}>
+                          <Ban size={14} /> Cancel Order
+                        </button>
+                      )}
+                    </div>
                   )}
                 </div>
               )}
@@ -269,6 +283,9 @@ export default function OrderTable({ orders, role, onDispatch, onRefresh, user }
                           <Truck size={13} /> Dispatch
                         </button>
                       )}
+                      <button className="btn-icon-sm" onClick={() => onEdit(order)} title="Edit order">
+                        <Pencil size={13} />
+                      </button>
                     </td>
                   )}
                 </tr>
@@ -277,6 +294,13 @@ export default function OrderTable({ orders, role, onDispatch, onRefresh, user }
                   <tr className="detail-row">
                     <td colSpan={colSpan}>
                       <OrderDetail order={order} auditCache={auditCache} loadingAudit={loadingAudit} />
+                      {role === 'owner' && order.status !== 'cancelled' && (
+                        <div className="detail-owner-actions">
+                          <button className="btn-secondary btn-danger-outline" onClick={() => onCancel(order.id, order.status)}>
+                            <Ban size={14} /> Cancel Order
+                          </button>
+                        </div>
+                      )}
                     </td>
                   </tr>
                 )}

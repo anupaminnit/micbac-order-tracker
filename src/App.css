@@ -141,6 +141,7 @@ h1, h2, h3 {
   transition: all var(--t);
 }
 .btn-secondary:hover { background: var(--bg); border-color: var(--border-dark); }
+.btn-secondary-active { background: var(--bg); border-color: var(--text); color: var(--text); }
 
 .btn-icon {
   display: inline-flex;

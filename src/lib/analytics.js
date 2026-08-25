@@ -20,7 +20,10 @@ function monthKey(dateStr) {
 
 export async function getAnalyticsSummary() {
   const [{ data: orders, error: ordersError }, { data: audit, error: auditError }] = await Promise.all([
-    supabase.from('orders').select('id, customer, status, order_value, readiness_date, created_at, updated_at'),
+    supabase
+      .from('orders')
+      .select('id, customer, status, order_value, readiness_date, created_at, updated_at')
+      .neq('status', 'cancelled'),
     supabase.from('audit_trail').select('order_id, action, changed_at'),
   ])
   if (ordersError) throw ordersError

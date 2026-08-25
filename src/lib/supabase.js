@@ -30,7 +30,9 @@ export async function getProfile(userId) {
 export async function getOrders({ status, priority, search, dateFrom, dateTo } = {}) {
   let query = supabase.from('orders').select('*').order('created_at', { ascending: false })
 
+  // Cancelled orders are a soft delete — hidden unless explicitly asked for.
   if (status) query = query.eq('status', status)
+  else query = query.neq('status', 'cancelled')
   if (priority) query = query.eq('priority', priority)
   if (search) query = query.or(`item.ilike.%${search}%,customer.ilike.%${search}%`)
   if (dateFrom) query = query.gte('readiness_date', dateFrom)
@@ -63,6 +65,29 @@ export async function createOrder(orderData, createdBy) {
   return data
 }
 
+// Edits the order's own fields (item, customer, quantity, etc.) — distinct from
+// updateOrderStatus, which is for pipeline transitions. Logs a lightweight audit_trail marker
+// (no field-level before/after diff) as best-effort — if that insert fails, the edit itself has
+// already succeeded, so this only warns rather than throwing.
+export async function updateOrder(orderId, fields, changedBy) {
+  const { data, error } = await supabase.from('orders').update(fields).eq('id', orderId).select().single()
+  if (error) throw error
+
+  try {
+    await supabase.from('audit_trail').insert({
+      order_id: orderId,
+      action: 'Order Edited',
+      old_status: null,
+      new_status: null,
+      changed_by: changedBy,
+    })
+  } catch (err) {
+    console.error('Failed to log order edit to audit trail:', err)
+  }
+
+  return data
+}
+
 export async function updateOrderStatus(orderId, newStatus, changedBy, currentStatus, notes = '') {
   const { data, error } = await supabase
     .from('orders')
@@ -77,6 +102,7 @@ export async function updateOrderStatus(orderId, newStatus, changedBy, currentSt
     production: 'Started Production',
     ready: 'Marked Ready',
     dispatched: 'Dispatched',
+    cancelled: 'Cancelled',
   }
 
   await supabase.from('audit_trail').insert({
@@ -117,6 +143,7 @@ export async function getOrderStats() {
   const { data, error } = await supabase
     .from('orders')
     .select('status, priority, order_value, readiness_date')
+    .neq('status', 'cancelled')
   if (error) throw error
 
   const today = localDateStr()

@@ -1,5 +1,5 @@
 import { useState, useEffect, useCallback } from 'react'
-import { Plus, Search, Download, RefreshCw } from 'lucide-react'
+import { Plus, Search, Download, RefreshCw, Archive } from 'lucide-react'
 import TopNav from '../components/TopNav'
 import OrderForm from '../components/OrderForm'
 import OrderTable from '../components/OrderTable'
@@ -32,7 +32,8 @@ export default function OwnerDashboard({ user, onLogout }) {
   })
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState(null)
-  const [showForm, setShowForm] = useState(false)
+  // null = closed, 'new' = create mode, an order object = edit mode
+  const [formTarget, setFormTarget] = useState(null)
   const isMobile = useIsMobile()
   const [filters, setFilters] = useState({
     status: 'all',
@@ -79,6 +80,18 @@ export default function OwnerDashboard({ user, onLogout }) {
     // call to notifyDispatch(orderId) here (non-blocking, own try/catch) once that's done.
   }
 
+  const handleCancel = async (orderId, currentStatus) => {
+    if (!window.confirm('Cancel this order? It will be hidden from the normal order list but kept on record (not deleted) — findable again via "Cancelled" below.')) {
+      return
+    }
+    try {
+      await updateOrderStatus(orderId, 'cancelled', user.username, currentStatus)
+      fetchData()
+    } catch (err) {
+      setError(err.message)
+    }
+  }
+
   const setStatusFilter = (status) => setFilters((f) => ({ ...f, status, priority: 'all' }))
   const setPriorityFilter = (e) => setFilters((f) => ({ ...f, priority: e.target.value }))
 
@@ -89,7 +102,7 @@ export default function OwnerDashboard({ user, onLogout }) {
           <RefreshCw size={18} />
         </button>
         {!isMobile && (
-          <button className="btn-primary" onClick={() => setShowForm(true)}>
+          <button className="btn-primary" onClick={() => setFormTarget('new')}>
             <Plus size={16} /> New Order
           </button>
         )}
@@ -160,6 +173,12 @@ export default function OwnerDashboard({ user, onLogout }) {
         <button className="btn-secondary" onClick={() => exportOrdersToCSV(orders)}>
           <Download size={16} /> Export CSV
         </button>
+        <button
+          className={`btn-secondary ${filters.status === 'cancelled' ? 'btn-secondary-active' : ''}`}
+          onClick={() => setStatusFilter(filters.status === 'cancelled' ? 'all' : 'cancelled')}
+        >
+          <Archive size={16} /> {filters.status === 'cancelled' ? 'Hide Cancelled' : 'View Cancelled'}
+        </button>
       </div>
 
       <div className="dashboard-content">
@@ -185,25 +204,28 @@ export default function OwnerDashboard({ user, onLogout }) {
             orders={orders}
             role="owner"
             onDispatch={handleDispatch}
+            onEdit={setFormTarget}
+            onCancel={handleCancel}
             onRefresh={fetchData}
             user={user}
           />
         )}
       </div>
 
-      {showForm && (
+      {formTarget && (
         <OrderForm
           user={user}
-          onClose={() => setShowForm(false)}
+          order={formTarget === 'new' ? undefined : formTarget}
+          onClose={() => setFormTarget(null)}
           onSuccess={() => {
-            setShowForm(false)
+            setFormTarget(null)
             fetchData()
           }}
         />
       )}
 
       {isMobile && (
-        <button className="fab-new-order" onClick={() => setShowForm(true)} aria-label="New Order">
+        <button className="fab-new-order" onClick={() => setFormTarget('new')} aria-label="New Order">
           <Plus size={22} />
         </button>
       )}
