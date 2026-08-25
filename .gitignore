@@ -32,3 +32,7 @@ yarn-error.log*
 
 # Local progress notes — not for the public repo
 PROGRESS.md
+
+# Source images already uploaded to Supabase Storage (packaging-images bucket) — the bucket is
+# the runtime source of truth, no need to duplicate raw files into git history.
+/pictures/

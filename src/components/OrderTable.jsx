@@ -3,6 +3,7 @@ import { ChevronDown, ChevronRight, Truck } from 'lucide-react'
 import { getAuditTrail } from '../lib/supabase'
 import { localDateStr } from '../lib/dates'
 import { useIsMobile } from '../hooks/useIsMobile'
+import BrandingBadge from './BrandingBadge'
 import '../styles/OrderTable.css'
 
 const STATUS_CLASS = {
@@ -65,7 +66,7 @@ function OrderDetail({ order, auditCache, loadingAudit }) {
         </div>
         <div>
           <span className="detail-label">Branding</span>
-          <span className="detail-value">{order.branding}</span>
+          <span className="detail-value"><BrandingBadge label={order.branding} /></span>
         </div>
         <div>
           <span className="detail-label">Packing Type</span>

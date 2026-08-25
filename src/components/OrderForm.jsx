@@ -2,6 +2,7 @@ import { useState } from 'react'
 import { X, Save, Paperclip } from 'lucide-react'
 import { createOrder } from '../lib/supabase'
 import { localDateStr } from '../lib/dates'
+import BrandingPicker from './BrandingPicker'
 import '../styles/OrderForm.css'
 
 const PRIORITIES = [
@@ -20,7 +21,7 @@ const INITIAL = {
   priority: 'normal',
   packaging: 'box',
   packing_type: '',
-  branding: 'unbranded',
+  branding: 'Default',
   readiness_date: '',
   delivery_address: '',
   notes: '',
@@ -203,13 +204,9 @@ export default function OrderForm({ user, onClose, onSuccess }) {
               </select>
             </div>
 
-            <div className="form-group">
-              <label htmlFor="branding">Branding</label>
-              <select id="branding" name="branding" value={form.branding} onChange={handleChange}>
-                <option value="unbranded">Unbranded</option>
-                <option value="branded">Branded</option>
-                <option value="custom">Custom Branding</option>
-              </select>
+            <div className="form-group form-group-full">
+              <label>Branding</label>
+              <BrandingPicker value={form.branding} onChange={(label) => setForm((f) => ({ ...f, branding: label }))} />
             </div>
 
             <div className="form-group form-group-full">
