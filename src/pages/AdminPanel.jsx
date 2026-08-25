@@ -121,7 +121,7 @@ export default function AdminPanel({ user, onLogout }) {
         ) : orders.length === 0 ? (
           <div className="empty-state">No orders found.</div>
         ) : (
-          <OrderTable orders={orders} role="admin" onRefresh={fetchData} user={user} />
+          <OrderTable orders={orders} role="admin" />
         )}
       </div>
     </div>

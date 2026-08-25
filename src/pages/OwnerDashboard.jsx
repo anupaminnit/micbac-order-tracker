@@ -206,8 +206,6 @@ export default function OwnerDashboard({ user, onLogout }) {
             onDispatch={handleDispatch}
             onEdit={setFormTarget}
             onCancel={handleCancel}
-            onRefresh={fetchData}
-            user={user}
           />
         )}
       </div>

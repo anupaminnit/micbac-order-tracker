@@ -1,4 +1,4 @@
-import React, { Fragment, useState, useCallback } from 'react'
+import { Fragment, useState, useCallback } from 'react'
 import { ChevronDown, ChevronRight, Truck, Pencil, Ban } from 'lucide-react'
 import { getAuditTrail } from '../lib/supabase'
 import { localDateStr } from '../lib/dates'
@@ -124,7 +124,7 @@ function OrderDetail({ order, auditCache, loadingAudit }) {
   )
 }
 
-export default function OrderTable({ orders, role, onDispatch, onEdit, onCancel, onRefresh, user }) {
+export default function OrderTable({ orders, role, onDispatch, onEdit, onCancel }) {
   const [expanded, setExpanded] = useState(null)
   const [auditCache, setAuditCache] = useState({})
   const [loadingAudit, setLoadingAudit] = useState(null)
