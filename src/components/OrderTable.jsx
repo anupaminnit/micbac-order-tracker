@@ -1,5 +1,5 @@
 import { Fragment, useState, useCallback } from 'react'
-import { ChevronDown, ChevronRight, Truck, Pencil, Ban } from 'lucide-react'
+import { ChevronDown, ChevronRight, Pencil, Ban } from 'lucide-react'
 import { getAuditTrail } from '../lib/supabase'
 import { localDateStr } from '../lib/dates'
 import { useIsMobile } from '../hooks/useIsMobile'
@@ -124,7 +124,7 @@ function OrderDetail({ order, auditCache, loadingAudit }) {
   )
 }
 
-export default function OrderTable({ orders, role, onDispatch, onEdit, onCancel }) {
+export default function OrderTable({ orders, role, onEdit, onCancel }) {
   const [expanded, setExpanded] = useState(null)
   const [auditCache, setAuditCache] = useState({})
   const [loadingAudit, setLoadingAudit] = useState(null)
@@ -191,11 +191,6 @@ export default function OrderTable({ orders, role, onDispatch, onEdit, onCancel 
               {isOpen && (
                 <div className="order-card-detail" onClick={(e) => e.stopPropagation()}>
                   <OrderDetail order={order} auditCache={auditCache} loadingAudit={loadingAudit} />
-                  {role === 'owner' && order.status === 'ready' && (
-                    <button className="btn-dispatch btn-dispatch-full" onClick={() => onDispatch(order.id, order.status)}>
-                      <Truck size={14} /> Mark as Dispatched
-                    </button>
-                  )}
                   {role === 'owner' && (
                     <div className="order-card-owner-actions">
                       <button className="btn-secondary" onClick={() => onEdit(order)}>
@@ -275,14 +270,6 @@ export default function OrderTable({ orders, role, onDispatch, onEdit, onCancel 
                       data-label="Actions"
                       onClick={(e) => e.stopPropagation()}
                     >
-                      {order.status === 'ready' && (
-                        <button
-                          className="btn-dispatch"
-                          onClick={() => onDispatch(order.id, order.status)}
-                        >
-                          <Truck size={13} /> Dispatch
-                        </button>
-                      )}
                       <button className="btn-icon-sm" onClick={() => onEdit(order)} title="Edit order">
                         <Pencil size={13} />
                       </button>

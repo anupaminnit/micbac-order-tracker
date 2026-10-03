@@ -1,5 +1,5 @@
 import { useState, useEffect, useCallback } from 'react'
-import { RefreshCw, PlayCircle, CheckCircle2, Sun, Moon } from 'lucide-react'
+import { RefreshCw, PlayCircle, CheckCircle2, Truck, Sun, Moon } from 'lucide-react'
 import { getOrders, updateOrderStatus } from '../lib/supabase'
 import { localDateStr } from '../lib/dates'
 import markLight from '../assets/mark-light.png'
@@ -9,6 +9,22 @@ import '../styles/FactoryDashboard.css'
 
 const POLL_INTERVAL_MS = 20_000
 const THEME_STORAGE_KEY = 'micbac-factory-theme'
+
+// One step per status; the order of keys is also the on-screen card order (closest to leaving
+// the factory first).
+const STEPS = {
+  ready: {
+    badge: 'READY',
+    next: 'dispatched',
+    label: 'Loaded in Trucks & Dispatched',
+    Icon: Truck,
+    cls: 'factory-action-dispatch',
+    // Forward-only state machine, so a mis-tap can't be undone from here — confirm first.
+    confirm: 'Confirm this order is LOADED IN TRUCKS and DISPATCHED? This cannot be undone.',
+  },
+  production: { badge: 'IN PRODUCTION', next: 'ready', label: 'Mark as Ready', Icon: CheckCircle2, cls: 'factory-action-ready' },
+  pending: { badge: 'PENDING', next: 'production', label: 'Start Production', Icon: PlayCircle, cls: 'factory-action-start' },
+}
 
 function urgency(readinessDate) {
   const today = localDateStr()
@@ -32,12 +48,9 @@ export default function FactoryDashboard() {
     if (isFirstLoad) setLoading(true)
     setError(null)
     try {
-      const [inProd, pending] = await Promise.all([
-        getOrders({ status: 'production' }),
-        getOrders({ status: 'pending' }),
-      ])
+      const groups = await Promise.all(Object.keys(STEPS).map((status) => getOrders({ status })))
       const bySoonest = (a, b) => a.readiness_date.localeCompare(b.readiness_date)
-      setOrders([...inProd.sort(bySoonest), ...pending.sort(bySoonest)])
+      setOrders(groups.flatMap((g) => g.sort(bySoonest)))
     } catch (err) {
       setError(err.message)
     } finally {
@@ -51,10 +64,16 @@ export default function FactoryDashboard() {
     return () => clearInterval(interval)
   }, [fetchOrders])
 
-  const handleAction = async (order, newStatus) => {
+  const handleAction = async (order) => {
+    const step = STEPS[order.status]
+    if (step.confirm && !window.confirm(step.confirm)) return
     setUpdating(order.id)
     try {
-      await updateOrderStatus(order.id, newStatus, 'factory', order.status)
+      await updateOrderStatus(order.id, step.next, 'factory', order.status)
+      // Freightysh dispatch email (notifyDispatch, src/lib/supabase.js) is paused pending Resend
+      // domain verification. It used to hang off the owner's Dispatch button; dispatch now happens
+      // here, but its Edge Function requires a signed-in user and Factory has none — re-enabling
+      // it needs a DB-side trigger (e.g. on status -> dispatched) rather than a call from here.
       await fetchOrders(false)
     } catch (err) {
       setError(err.message)
@@ -65,6 +84,7 @@ export default function FactoryDashboard() {
 
   const prodCount = orders.filter((o) => o.status === 'production').length
   const pendCount = orders.filter((o) => o.status === 'pending').length
+  const readyCount = orders.filter((o) => o.status === 'ready').length
 
   return (
     <div className="factory-dashboard" data-factory-theme={theme}>
@@ -99,6 +119,10 @@ export default function FactoryDashboard() {
             </div>
           </div>
           <div className="factory-counts">
+            <span className="count-pill count-pill-ready">
+              <span className="count-dot count-dot-ready" />
+              {readyCount} Ready
+            </span>
             <span className="count-pill count-pill-prod">
               <span className="count-dot count-dot-prod" />
               {prodCount} In Production
@@ -127,19 +151,19 @@ export default function FactoryDashboard() {
             <div className="factory-empty">
               <img src={theme === 'light' ? markDark : markLight} alt="" className="factory-empty-mark" />
               <h2>All clear!</h2>
-              <p>No pending or in-production orders right now.</p>
+              <p>No orders waiting for production or dispatch right now.</p>
             </div>
           ) : (
             orders.map((order) => {
               const ds = urgency(order.readiness_date)
-              const isProd = order.status === 'production'
+              const step = STEPS[order.status]
               const isUpdating = updating === order.id
               return (
                 <div key={order.id} className={`factory-card factory-card-${ds}`}>
                   <div className="factory-card-top">
                     <span className={`factory-badge factory-badge-${order.status}`}>
                       <span className="factory-badge-dot" />
-                      {order.status === 'pending' ? 'PENDING' : 'IN PRODUCTION'}
+                      {step.badge}
                     </span>
                     <span className={`factory-date factory-date-${ds}`}>
                       {ds === 'overdue'
@@ -183,19 +207,15 @@ export default function FactoryDashboard() {
                   )}
 
                   <button
-                    className={`factory-action ${isProd ? 'factory-action-ready' : 'factory-action-start'}`}
-                    onClick={() => handleAction(order, isProd ? 'ready' : 'production')}
+                    className={`factory-action ${step.cls}`}
+                    onClick={() => handleAction(order)}
                     disabled={isUpdating}
                   >
                     {isUpdating ? (
                       'Updating…'
-                    ) : isProd ? (
-                      <>
-                        <CheckCircle2 size={18} /> Mark as Ready
-                      </>
                     ) : (
                       <>
-                        <PlayCircle size={18} /> Start Production
+                        <step.Icon size={18} /> {step.label}
                       </>
                     )}
                   </button>

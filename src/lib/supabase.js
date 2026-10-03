@@ -88,13 +88,14 @@ export async function updateOrder(orderId, fields, changedBy) {
   return data
 }
 
+// No .select() here on purpose: returning the row makes Postgres also check the *new* row
+// against SELECT policies, and Factory (anon) can't read orders once they're dispatched — so
+// a returning update would fail its own last step.
 export async function updateOrderStatus(orderId, newStatus, changedBy, currentStatus, notes = '') {
-  const { data, error } = await supabase
+  const { error } = await supabase
     .from('orders')
     .update({ status: newStatus, updated_at: new Date().toISOString() })
     .eq('id', orderId)
-    .select()
-    .single()
 
   if (error) throw error
 
@@ -113,8 +114,6 @@ export async function updateOrderStatus(orderId, newStatus, changedBy, currentSt
     changed_by: changedBy,
     notes: notes || null,
   })
-
-  return data
 }
 
 // Best-effort: caller should dispatch the order regardless of whether this succeeds and

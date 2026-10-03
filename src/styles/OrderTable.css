@@ -78,24 +78,6 @@
   letter-spacing: 0.3px;
 }
 
-/* ── Dispatch button ───────────────────── */
-.btn-dispatch {
-  display: inline-flex;
-  align-items: center;
-  gap: 4px;
-  padding: 5px 10px;
-  background: var(--primary);
-  color: var(--btn-primary-text, white);
-  border: none;
-  border-radius: var(--radius-sm);
-  font-size: 12px;
-  font-weight: 600;
-  cursor: pointer;
-  white-space: nowrap;
-  transition: background var(--t);
-}
-.btn-dispatch:hover { background: var(--primary-hover); }
-
 /* ── Row-level owner actions (Edit/Cancel) ─ */
 .btn-icon-sm {
   display: inline-flex;
@@ -274,9 +256,3 @@
   background: var(--bg);
 }
 .order-card-detail .detail-panel { padding: 14px 14px 14px 18px; }
-.btn-dispatch-full {
-  width: calc(100% - 28px);
-  margin: 0 14px 14px;
-  justify-content: center;
-  padding: 11px;
-}

@@ -68,18 +68,6 @@ export default function OwnerDashboard({ user, onLogout }) {
     fetchData()
   }, [fetchData])
 
-  const handleDispatch = async (orderId, currentStatus) => {
-    try {
-      await updateOrderStatus(orderId, 'dispatched', user.username, currentStatus)
-      fetchData()
-    } catch (err) {
-      setError(err.message)
-    }
-    // Freightysh email notification (notifyDispatch, src/lib/supabase.js) is built but not
-    // wired in yet — paused pending Resend domain verification for micbacindia.com. Re-add a
-    // call to notifyDispatch(orderId) here (non-blocking, own try/catch) once that's done.
-  }
-
   const handleCancel = async (orderId, currentStatus) => {
     if (!window.confirm('Cancel this order? It will be hidden from the normal order list but kept on record (not deleted) — findable again via "Cancelled" below.')) {
       return
@@ -203,7 +191,6 @@ export default function OwnerDashboard({ user, onLogout }) {
           <OrderTable
             orders={orders}
             role="owner"
-            onDispatch={handleDispatch}
             onEdit={setFormTarget}
             onCancel={handleCancel}
           />
