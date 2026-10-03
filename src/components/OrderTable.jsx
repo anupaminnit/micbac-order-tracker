@@ -4,6 +4,7 @@ import { getAuditTrail } from '../lib/supabase'
 import { localDateStr } from '../lib/dates'
 import { useIsMobile } from '../hooks/useIsMobile'
 import BrandingBadge from './BrandingBadge'
+import { orderProfit } from '../lib/profit'
 import '../styles/OrderTable.css'
 
 const STATUS_CLASS = {
@@ -46,6 +47,8 @@ const PRIORITY_DOT = {
 const currency = (n) =>
   n == null ? '—' : new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD', maximumFractionDigits: 0 }).format(n)
 
+const kg = (n) => `${n.toLocaleString()} kg`
+
 const today = () => localDateStr()
 
 function PriorityBadge({ priority }) {
@@ -59,9 +62,30 @@ function PriorityBadge({ priority }) {
 
 function OrderDetail({ order, auditCache, loadingAudit }) {
   const entries = auditCache[order.id]
+  const profit = orderProfit(order)
   return (
     <div className="detail-panel" style={{ borderLeftColor: PRIORITY_DOT[order.priority] || PRIORITY_DOT.normal }}>
       <div className="detail-grid">
+        <div>
+          <span className="detail-label">Destination</span>
+          <span className="detail-value">{order.destination_country || '—'}</span>
+        </div>
+        <div>
+          <span className="detail-label">PO Number</span>
+          <span className="detail-value">{order.po_number || '—'}</span>
+        </div>
+        <div>
+          <span className="detail-label">Cost / Selling</span>
+          <span className="detail-value">
+            {currency(order.order_value)} / {currency(order.selling_price)}
+          </span>
+        </div>
+        <div>
+          <span className="detail-label">Gross Profit</span>
+          <span className={`detail-value ${profit && profit.profit < 0 ? 'detail-loss' : ''}`}>
+            {profit ? `${currency(profit.profit)}${profit.margin != null ? ` (${profit.margin.toFixed(1)}%)` : ''}` : '—'}
+          </span>
+        </div>
         <div>
           <span className="detail-label">Packaging</span>
           <span className="detail-value">{order.packaging}</span>
@@ -171,7 +195,9 @@ export default function OrderTable({ orders, role, onEdit, onCancel }) {
                 <div className="order-card-heading">
                   <div className="order-card-item">{order.item}</div>
                   <div className="order-card-customer">{order.customer}</div>
-                  <div className="order-card-po">{order.po_number || '—'}</div>
+                  <div className="order-card-po">
+                    {[order.order_number, order.po_number && `PO ${order.po_number}`].filter(Boolean).join(' · ') || '—'}
+                  </div>
                 </div>
                 <PriorityBadge priority={order.priority} />
               </div>
@@ -184,6 +210,7 @@ export default function OrderTable({ orders, role, onEdit, onCancel }) {
                   <span className={`cell-date ${isOverdue ? 'cell-date-overdue' : ''}`}>
                     {new Date(order.readiness_date + 'T00:00:00').toLocaleDateString()}
                   </span>
+                  <span className="order-card-qty">{kg(order.quantity)}</span>
                   <span className="order-card-value">{currency(order.order_value)}</span>
                 </div>
               </div>
@@ -219,11 +246,11 @@ export default function OrderTable({ orders, role, onEdit, onCancel }) {
           <tr>
             <th className="col-expand" />
             <th>Priority</th>
-            <th>PO No.</th>
+            <th>Order No.</th>
             <th>Item</th>
             <th>Customer</th>
             <th className="col-num">Qty</th>
-            <th className="col-num">Value</th>
+            <th className="col-num">Cost</th>
             <th>Due Date</th>
             <th>Status</th>
             {role === 'owner' && <th className="col-action">Actions</th>}
@@ -248,14 +275,14 @@ export default function OrderTable({ orders, role, onEdit, onCancel }) {
                   <td data-label="Priority">
                     <PriorityBadge priority={order.priority} />
                   </td>
-                  <td className="cell-po" data-label="PO No.">{order.po_number || '—'}</td>
+                  <td className="cell-po" data-label="Order No.">{order.order_number || '—'}</td>
                   <td className="cell-item" data-label="Item">
                     {order.item}
                     {isOverdue && <span className="overdue-tag">OVERDUE</span>}
                   </td>
                   <td data-label="Customer">{order.customer}</td>
-                  <td className="col-num" data-label="Qty">{order.quantity.toLocaleString()}</td>
-                  <td className="col-num" data-label="Value">{currency(order.order_value)}</td>
+                  <td className="col-num" data-label="Qty">{kg(order.quantity)}</td>
+                  <td className="col-num" data-label="Cost">{currency(order.order_value)}</td>
                   <td className="cell-date" data-label="Due Date">
                     {new Date(order.readiness_date + 'T00:00:00').toLocaleDateString()}
                   </td>

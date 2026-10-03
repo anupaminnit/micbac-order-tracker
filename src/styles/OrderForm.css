@@ -128,3 +128,8 @@ form {
   .modal-footer { flex-direction: column-reverse; }
   .modal-footer button { width: 100%; justify-content: center; }
 }
+
+/* Live profit/loss read-out under Selling Price. */
+.form-hint { display: block; margin-top: 6px; font-size: 12px; font-weight: 600; }
+.form-hint-profit { color: #16a34a; }
+.form-hint-loss { color: #dc2626; }

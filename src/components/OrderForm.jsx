@@ -4,7 +4,9 @@ import { createOrder, updateOrder } from '../lib/supabase'
 import { localDateStr } from '../lib/dates'
 import { getCustomers, addCustomer, normalizeCustomerName } from '../lib/customers'
 import BrandingPicker from './BrandingPicker'
-import CustomerCombobox from './CustomerCombobox'
+import Combobox from './Combobox'
+import { COUNTRIES } from '../lib/countries'
+import { orderProfit } from '../lib/profit'
 import '../styles/OrderForm.css'
 
 const PRIORITIES = [
@@ -14,12 +16,18 @@ const PRIORITIES = [
   { value: 'low', label: 'Low', emoji: '⚪' },
 ]
 
+const usd = (n) =>
+  new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD', maximumFractionDigits: 0 }).format(n)
+
 const INITIAL = {
   item: '',
   quantity: '',
   customer: '',
+  order_number: '',
   po_number: '',
+  destination_country: '',
   order_value: '',
+  selling_price: '',
   priority: 'normal',
   packaging: 'box',
   packing_type: '',
@@ -34,8 +42,11 @@ function toFormState(order) {
     item: order.item ?? '',
     quantity: order.quantity != null ? String(order.quantity) : '',
     customer: order.customer ?? '',
+    order_number: order.order_number ?? '',
     po_number: order.po_number ?? '',
+    destination_country: order.destination_country ?? '',
     order_value: order.order_value != null ? String(order.order_value) : '',
+    selling_price: order.selling_price != null ? String(order.selling_price) : '',
     priority: order.priority ?? 'normal',
     packaging: order.packaging ?? 'box',
     packing_type: order.packing_type ?? '',
@@ -78,7 +89,10 @@ export default function OrderForm({ user, order, onClose, onSuccess }) {
       customer,
       quantity: parseInt(form.quantity, 10),
       order_value: form.order_value ? parseFloat(form.order_value) : null,
+      selling_price: form.selling_price ? parseFloat(form.selling_price) : null,
+      order_number: form.order_number.trim() || null,
       po_number: form.po_number || null,
+      destination_country: normalizeCustomerName(form.destination_country) || null,
       packing_type: form.packing_type || null,
       delivery_address: form.delivery_address || null,
     }
@@ -107,6 +121,10 @@ export default function OrderForm({ user, order, onClose, onSuccess }) {
   }
 
   const today = localDateStr()
+  const profit = orderProfit({
+    order_value: form.order_value ? parseFloat(form.order_value) : null,
+    selling_price: form.selling_price ? parseFloat(form.selling_price) : null,
+  })
 
   return (
     <div
@@ -155,13 +173,14 @@ export default function OrderForm({ user, order, onClose, onSuccess }) {
             </div>
 
             <div className="form-group">
-              <label htmlFor="customer">Customer *</label>
-              <CustomerCombobox
-                id="customer"
-                value={form.customer}
-                options={customers.map((c) => c.name)}
-                onChange={(name) => setForm((f) => ({ ...f, customer: name }))}
-                required
+              <label htmlFor="order_number">Order Number</label>
+              <input
+                id="order_number"
+                name="order_number"
+                type="text"
+                value={form.order_number}
+                onChange={handleChange}
+                placeholder="e.g. MB-2026-014"
               />
             </div>
 
@@ -178,30 +197,40 @@ export default function OrderForm({ user, order, onClose, onSuccess }) {
             </div>
 
             <div className="form-group">
-              <label htmlFor="quantity">Quantity *</label>
+              <label htmlFor="customer">Customer *</label>
+              <Combobox
+                id="customer"
+                value={form.customer}
+                options={customers.map((c) => c.name)}
+                onChange={(name) => setForm((f) => ({ ...f, customer: name }))}
+                placeholder="Pick from list or type a new one"
+                addLabel={(name) => `Add “${name}” as new customer`}
+                required
+              />
+            </div>
+
+            <div className="form-group">
+              <label htmlFor="destination_country">Destination Country</label>
+              <Combobox
+                id="destination_country"
+                value={form.destination_country}
+                options={COUNTRIES}
+                onChange={(country) => setForm((f) => ({ ...f, destination_country: country }))}
+                placeholder="e.g. Malaysia"
+              />
+            </div>
+
+            <div className="form-group">
+              <label htmlFor="quantity">Quantity (kg) *</label>
               <input
                 id="quantity"
                 name="quantity"
                 type="number"
                 value={form.quantity}
                 onChange={handleChange}
-                placeholder="e.g. 500"
+                placeholder="e.g. 28000"
                 min="1"
                 required
-              />
-            </div>
-
-            <div className="form-group">
-              <label htmlFor="order_value">Order Value (USD)</label>
-              <input
-                id="order_value"
-                name="order_value"
-                type="number"
-                value={form.order_value}
-                onChange={handleChange}
-                placeholder="e.g. 12000"
-                min="0"
-                step="0.01"
               />
             </div>
 
@@ -216,6 +245,40 @@ export default function OrderForm({ user, order, onClose, onSuccess }) {
                 min={isEdit ? undefined : today}
                 required
               />
+            </div>
+
+            <div className="form-group">
+              <label htmlFor="order_value">Order Value / Cost (USD)</label>
+              <input
+                id="order_value"
+                name="order_value"
+                type="number"
+                value={form.order_value}
+                onChange={handleChange}
+                placeholder="e.g. 12000"
+                min="0"
+                step="0.01"
+              />
+            </div>
+
+            <div className="form-group">
+              <label htmlFor="selling_price">Selling Price (USD, total)</label>
+              <input
+                id="selling_price"
+                name="selling_price"
+                type="number"
+                value={form.selling_price}
+                onChange={handleChange}
+                placeholder="e.g. 14000"
+                min="0"
+                step="0.01"
+              />
+              {profit && (
+                <span className={`form-hint ${profit.profit < 0 ? 'form-hint-loss' : 'form-hint-profit'}`}>
+                  {profit.profit < 0 ? 'Loss' : 'Profit'}: {usd(Math.abs(profit.profit))}
+                  {profit.margin != null && ` (${profit.margin.toFixed(1)}% margin)`}
+                </span>
+              )}
             </div>
 
             <div className="form-group">

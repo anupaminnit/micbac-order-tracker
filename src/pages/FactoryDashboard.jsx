@@ -192,6 +192,12 @@ export default function FactoryDashboard() {
                       <span className="factory-field-label">Packaging</span>
                       <span className="factory-field-value">{order.packaging}</span>
                     </div>
+                    {order.destination_country && (
+                      <div className="factory-field">
+                        <span className="factory-field-label">Destination</span>
+                        <span className="factory-field-value">{order.destination_country}</span>
+                      </div>
+                    )}
                   </div>
 
                   <div className="factory-branding-block">

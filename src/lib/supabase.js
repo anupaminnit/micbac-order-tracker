@@ -170,13 +170,14 @@ export async function getOrderStats() {
 
 export function exportOrdersToCSV(orders) {
   const headers = [
-    'ID', 'Item', 'Quantity', 'Customer', 'Packaging',
-    'Branding', 'Readiness Date', 'Status', 'Created By', 'Created At',
+    'ID', 'Order No.', 'PO No.', 'Item', 'Quantity (kg)', 'Customer', 'Destination Country',
+    'Cost (USD)', 'Selling Price (USD)', 'Packaging', 'Branding', 'Readiness Date', 'Status',
+    'Created By', 'Created At',
   ]
   const rows = orders.map((o) => [
-    o.id, o.item, o.quantity, o.customer, o.packaging,
-    o.branding, o.readiness_date, o.status, o.created_by,
-    new Date(o.created_at).toLocaleDateString(),
+    o.id, o.order_number, o.po_number, o.item, o.quantity, o.customer, o.destination_country,
+    o.order_value, o.selling_price, o.packaging, o.branding, o.readiness_date, o.status,
+    o.created_by, new Date(o.created_at).toLocaleDateString(),
   ])
 
   const csv = [headers, ...rows]
