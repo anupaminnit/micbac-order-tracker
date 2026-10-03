@@ -26,6 +26,8 @@ const STEPS = {
   pending: { badge: 'PENDING', next: 'production', label: 'Start Production', Icon: PlayCircle, cls: 'factory-action-start' },
 }
 
+const shortDate = (d) => new Date(d).toLocaleDateString('en-GB', { day: 'numeric', month: 'short' })
+
 function urgency(readinessDate) {
   const today = localDateStr()
   if (readinessDate < today) return 'overdue'
@@ -35,6 +37,8 @@ function urgency(readinessDate) {
 
 export default function FactoryDashboard() {
   const [orders, setOrders] = useState([])
+  const [completed, setCompleted] = useState([])
+  const [view, setView] = useState('active')
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState(null)
   const [updating, setUpdating] = useState(null)
@@ -48,9 +52,14 @@ export default function FactoryDashboard() {
     if (isFirstLoad) setLoading(true)
     setError(null)
     try {
-      const groups = await Promise.all(Object.keys(STEPS).map((status) => getOrders({ status })))
+      const [groups, dispatched] = await Promise.all([
+        Promise.all(Object.keys(STEPS).map((status) => getOrders({ status }))),
+        getOrders({ status: 'dispatched' }),
+      ])
       const bySoonest = (a, b) => a.readiness_date.localeCompare(b.readiness_date)
       setOrders(groups.flatMap((g) => g.sort(bySoonest)))
+      // updated_at = last status change, i.e. when it was dispatched. Newest first.
+      setCompleted(dispatched.sort((a, b) => b.updated_at.localeCompare(a.updated_at)))
     } catch (err) {
       setError(err.message)
     } finally {
@@ -132,6 +141,24 @@ export default function FactoryDashboard() {
               {pendCount} Pending
             </span>
           </div>
+          <div className="factory-tabs" role="tablist">
+            <button
+              role="tab"
+              aria-selected={view === 'active'}
+              className={`factory-tab ${view === 'active' ? 'factory-tab-active' : ''}`}
+              onClick={() => setView('active')}
+            >
+              Active ({orders.length})
+            </button>
+            <button
+              role="tab"
+              aria-selected={view === 'completed'}
+              className={`factory-tab ${view === 'completed' ? 'factory-tab-active' : ''}`}
+              onClick={() => setView('completed')}
+            >
+              Completed ({completed.length})
+            </button>
+          </div>
         </header>
 
         {error && (
@@ -147,30 +174,42 @@ export default function FactoryDashboard() {
               <RefreshCw size={28} className="spin" />
               <p>Loading orders…</p>
             </div>
-          ) : orders.length === 0 ? (
+          ) : (view === 'active' ? orders : completed).length === 0 ? (
             <div className="factory-empty">
               <img src={theme === 'light' ? markDark : markLight} alt="" className="factory-empty-mark" />
-              <h2>All clear!</h2>
-              <p>No orders waiting for production or dispatch right now.</p>
+              {view === 'active' ? (
+                <>
+                  <h2>All clear!</h2>
+                  <p>No orders waiting for production or dispatch right now.</p>
+                </>
+              ) : (
+                <>
+                  <h2>No completed orders yet</h2>
+                  <p>Orders appear here once they're loaded in trucks and dispatched.</p>
+                </>
+              )}
             </div>
           ) : (
-            orders.map((order) => {
-              const ds = urgency(order.readiness_date)
+            (view === 'active' ? orders : completed).map((order) => {
+              // Dispatched orders have no next step: read-only card, no urgency colouring.
               const step = STEPS[order.status]
+              const ds = step ? urgency(order.readiness_date) : 'done'
               const isUpdating = updating === order.id
               return (
                 <div key={order.id} className={`factory-card factory-card-${ds}`}>
                   <div className="factory-card-top">
                     <span className={`factory-badge factory-badge-${order.status}`}>
                       <span className="factory-badge-dot" />
-                      {step.badge}
+                      {step ? step.badge : 'DISPATCHED'}
                     </span>
                     <span className={`factory-date factory-date-${ds}`}>
-                      {ds === 'overdue'
+                      {ds === 'done'
+                        ? `Dispatched ${shortDate(order.updated_at)}`
+                        : ds === 'overdue'
                         ? '⚠ OVERDUE'
                         : ds === 'today'
                         ? '⚡ DUE TODAY'
-                        : `Due ${new Date(order.readiness_date + 'T00:00:00').toLocaleDateString('en-GB', { day: 'numeric', month: 'short' })}`}
+                        : `Due ${shortDate(order.readiness_date + 'T00:00:00')}`}
                     </span>
                   </div>
 
@@ -216,7 +255,7 @@ export default function FactoryDashboard() {
                         <span className="factory-field-value factory-field-value-raw">{order.bag_type}</span>
                       </div>
                     )}
-                    {order.status === 'ready' && order.delivery_address && (
+                    {(order.status === 'ready' || order.status === 'dispatched') && order.delivery_address && (
                       <div className="factory-field">
                         <span className="factory-field-label">Deliver To</span>
                         <span className="factory-field-value factory-field-value-raw">{order.delivery_address}</span>
@@ -242,19 +281,21 @@ export default function FactoryDashboard() {
                     </div>
                   )}
 
-                  <button
-                    className={`factory-action ${step.cls}`}
-                    onClick={() => handleAction(order)}
-                    disabled={isUpdating}
-                  >
-                    {isUpdating ? (
-                      'Updating…'
-                    ) : (
-                      <>
-                        <step.Icon size={18} /> {step.label}
-                      </>
-                    )}
-                  </button>
+                  {step && (
+                    <button
+                      className={`factory-action ${step.cls}`}
+                      onClick={() => handleAction(order)}
+                      disabled={isUpdating}
+                    >
+                      {isUpdating ? (
+                        'Updating…'
+                      ) : (
+                        <>
+                          <step.Icon size={18} /> {step.label}
+                        </>
+                      )}
+                    </button>
+                  )}
                 </div>
               )
             })

@@ -224,6 +224,7 @@
   padding: 0 18px 18px;
 }
 .factory-card-today { border-left-color: var(--f-accent); }
+.factory-card-done { border-left-color: var(--f-text-faint); }
 .factory-card-overdue { background: var(--f-danger-bg-solid); border-color: var(--f-danger-border-solid); border-left-color: var(--f-danger); }
 
 .factory-card-top {
@@ -267,6 +268,33 @@
 .factory-date { font-size: 12px; font-weight: 700; color: var(--f-text-faint); flex-shrink: 0; }
 .factory-date-today { color: var(--f-warning); }
 .factory-date-overdue { color: var(--f-danger); }
+.factory-badge-dispatched {
+  background: var(--f-surface2);
+  color: var(--f-text-muted);
+  border: 1px solid var(--f-border2);
+}
+.factory-badge-dispatched .factory-badge-dot { background: var(--f-text-muted); }
+
+/* Active / Completed switch — two big halves, same visual language as the theme switch. */
+.factory-tabs {
+  display: flex;
+  margin-top: 12px;
+  border: 1px solid var(--f-border2);
+  border-radius: 10px;
+  overflow: hidden;
+}
+.factory-tab {
+  flex: 1;
+  padding: 10px 8px;
+  background: none;
+  border: none;
+  color: var(--f-text-light);
+  font: inherit;
+  font-size: 13px;
+  font-weight: 700;
+  cursor: pointer;
+}
+.factory-tab-active { background: var(--f-accent-bg); color: var(--f-accent); }
 
 .factory-card-item {
   font-size: 20px;
