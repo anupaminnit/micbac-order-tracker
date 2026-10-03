@@ -67,6 +67,10 @@ function OrderDetail({ order, auditCache, loadingAudit }) {
     <div className="detail-panel" style={{ borderLeftColor: PRIORITY_DOT[order.priority] || PRIORITY_DOT.normal }}>
       <div className="detail-grid">
         <div>
+          <span className="detail-label">Factory</span>
+          <span className="detail-value">{order.factory || '—'}</span>
+        </div>
+        <div>
           <span className="detail-label">Destination</span>
           <span className="detail-value">{order.destination_country || '—'}</span>
         </div>

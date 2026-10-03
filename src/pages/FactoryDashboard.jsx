@@ -190,6 +190,12 @@ export default function FactoryDashboard() {
                         <span className="factory-field-value factory-field-value-raw">{order.order_number}</span>
                       </div>
                     )}
+                    {order.factory && (
+                      <div className="factory-field">
+                        <span className="factory-field-label">Factory</span>
+                        <span className="factory-field-value">{order.factory}</span>
+                      </div>
+                    )}
                     <div className="factory-field">
                       <span className="factory-field-label">Customer</span>
                       <span className="factory-field-value">{order.customer}</span>

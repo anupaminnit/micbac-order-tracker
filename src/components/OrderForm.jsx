@@ -6,6 +6,7 @@ import { getCustomers, addCustomer, normalizeCustomerName } from '../lib/custome
 import BrandingPicker from './BrandingPicker'
 import Combobox from './Combobox'
 import { COUNTRIES } from '../lib/countries'
+import { FACTORIES } from '../lib/factories'
 import { orderProfit } from '../lib/profit'
 import '../styles/OrderForm.css'
 
@@ -26,6 +27,7 @@ const INITIAL = {
   order_number: '',
   po_number: '',
   destination_country: '',
+  factory: '',
   order_value: '',
   selling_price: '',
   priority: 'normal',
@@ -45,6 +47,7 @@ function toFormState(order) {
     order_number: order.order_number ?? '',
     po_number: order.po_number ?? '',
     destination_country: order.destination_country ?? '',
+    factory: order.factory ?? '',
     order_value: order.order_value != null ? String(order.order_value) : '',
     selling_price: order.selling_price != null ? String(order.selling_price) : '',
     priority: order.priority ?? 'normal',
@@ -93,6 +96,7 @@ export default function OrderForm({ user, order, onClose, onSuccess }) {
       order_number: form.order_number.trim() || null,
       po_number: form.po_number || null,
       destination_country: normalizeCustomerName(form.destination_country) || null,
+      factory: normalizeCustomerName(form.factory) || null,
       packing_type: form.packing_type || null,
       delivery_address: form.delivery_address || null,
     }
@@ -304,6 +308,18 @@ export default function OrderForm({ user, order, onClose, onSuccess }) {
                 <option value="jumbo_bag">Jumbo Bag</option>
                 <option value="custom">Custom</option>
               </select>
+            </div>
+
+            <div className="form-group form-group-full">
+              <label htmlFor="factory">Factory</label>
+              <Combobox
+                id="factory"
+                value={form.factory}
+                options={FACTORIES}
+                onChange={(name) => setForm((f) => ({ ...f, factory: name }))}
+                placeholder="Pick or type a factory"
+                addLabel={(name) => `Use “${name}”`}
+              />
             </div>
 
             <div className="form-group form-group-full">
