@@ -32,7 +32,8 @@ const INITIAL = {
   selling_price: '',
   priority: 'normal',
   packaging: 'box',
-  packing_type: '',
+  bag_count: '',
+  bag_type: '',
   branding: 'Default',
   readiness_date: '',
   delivery_address: '',
@@ -52,7 +53,8 @@ function toFormState(order) {
     selling_price: order.selling_price != null ? String(order.selling_price) : '',
     priority: order.priority ?? 'normal',
     packaging: order.packaging ?? 'box',
-    packing_type: order.packing_type ?? '',
+    bag_count: order.bag_count != null ? String(order.bag_count) : '',
+    bag_type: order.bag_type ?? '',
     branding: order.branding ?? 'Default',
     readiness_date: order.readiness_date ?? '',
     delivery_address: order.delivery_address ?? '',
@@ -97,7 +99,8 @@ export default function OrderForm({ user, order, onClose, onSuccess }) {
       po_number: form.po_number || null,
       destination_country: normalizeCustomerName(form.destination_country) || null,
       factory: normalizeCustomerName(form.factory) || null,
-      packing_type: form.packing_type || null,
+      bag_count: form.bag_count ? parseInt(form.bag_count, 10) : null,
+      bag_type: form.bag_type.trim() || null,
       delivery_address: form.delivery_address || null,
     }
     try {
@@ -286,14 +289,28 @@ export default function OrderForm({ user, order, onClose, onSuccess }) {
             </div>
 
             <div className="form-group">
-              <label htmlFor="packing_type">Packing Type</label>
+              <label htmlFor="bag_count">No. of Bags</label>
               <input
-                id="packing_type"
-                name="packing_type"
-                type="text"
-                value={form.packing_type}
+                id="bag_count"
+                name="bag_count"
+                type="number"
+                value={form.bag_count}
                 onChange={handleChange}
-                placeholder="e.g. 25kg bags on pallet"
+                placeholder="e.g. 1120"
+                min="1"
+                step="1"
+              />
+            </div>
+
+            <div className="form-group">
+              <label htmlFor="bag_type">Type of Bags</label>
+              <input
+                id="bag_type"
+                name="bag_type"
+                type="text"
+                value={form.bag_type}
+                onChange={handleChange}
+                placeholder="e.g. 25 kg PP woven bag"
               />
             </div>
 
@@ -310,7 +327,7 @@ export default function OrderForm({ user, order, onClose, onSuccess }) {
               </select>
             </div>
 
-            <div className="form-group form-group-full">
+            <div className="form-group">
               <label htmlFor="factory">Factory</label>
               <Combobox
                 id="factory"

@@ -99,8 +99,12 @@ function OrderDetail({ order, auditCache, loadingAudit }) {
           <span className="detail-value"><BrandingBadge label={order.branding} /></span>
         </div>
         <div>
-          <span className="detail-label">Packing Type</span>
-          <span className="detail-value">{order.packing_type || '—'}</span>
+          <span className="detail-label">Bags</span>
+          <span className="detail-value">
+            {order.bag_count || order.bag_type
+              ? [order.bag_count?.toLocaleString(), order.bag_type].filter(Boolean).join(' × ')
+              : '—'}
+          </span>
         </div>
         <div>
           <span className="detail-label">Created By</span>
@@ -215,7 +219,7 @@ export default function OrderTable({ orders, role, onEdit, onCancel }) {
                     {new Date(order.readiness_date + 'T00:00:00').toLocaleDateString()}
                   </span>
                   <span className="order-card-qty">{kg(order.quantity)}</span>
-                  <span className="order-card-value">{currency(order.order_value)}</span>
+                  <span className="order-card-value">{currency(order.selling_price)}</span>
                 </div>
               </div>
 
@@ -254,7 +258,7 @@ export default function OrderTable({ orders, role, onEdit, onCancel }) {
             <th>Item</th>
             <th>Customer</th>
             <th className="col-num">Qty</th>
-            <th className="col-num">Cost</th>
+            <th className="col-num">Selling Price</th>
             <th>Due Date</th>
             <th>Status</th>
             {role === 'owner' && <th className="col-action">Actions</th>}
@@ -286,7 +290,7 @@ export default function OrderTable({ orders, role, onEdit, onCancel }) {
                   </td>
                   <td data-label="Customer">{order.customer}</td>
                   <td className="col-num" data-label="Qty">{kg(order.quantity)}</td>
-                  <td className="col-num" data-label="Cost">{currency(order.order_value)}</td>
+                  <td className="col-num" data-label="Selling Price">{currency(order.selling_price)}</td>
                   <td className="cell-date" data-label="Due Date">
                     {new Date(order.readiness_date + 'T00:00:00').toLocaleDateString()}
                   </td>

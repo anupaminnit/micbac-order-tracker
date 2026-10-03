@@ -141,7 +141,7 @@ export async function getAuditTrail(orderId) {
 export async function getOrderStats() {
   const { data, error } = await supabase
     .from('orders')
-    .select('status, priority, order_value, readiness_date')
+    .select('status, priority, selling_price, readiness_date')
     .neq('status', 'cancelled')
   if (error) throw error
 
@@ -161,7 +161,8 @@ export async function getOrderStats() {
     stats.total++
     if (o.priority === 'urgent') stats.urgent++
     if (o.status !== 'dispatched') {
-      stats.pipelineValue += o.order_value ?? 0
+      // Selling value of open orders; ones without a selling price yet add nothing.
+      stats.pipelineValue += o.selling_price ?? 0
       if (o.readiness_date < today) stats.overdue++
     }
   })
@@ -171,12 +172,12 @@ export async function getOrderStats() {
 export function exportOrdersToCSV(orders) {
   const headers = [
     'ID', 'Order No.', 'PO No.', 'Item', 'Quantity (kg)', 'Customer', 'Destination Country', 'Factory',
-    'Cost (USD)', 'Selling Price (USD)', 'Packaging', 'Branding', 'Readiness Date', 'Status',
+    'Cost (USD)', 'Selling Price (USD)', 'No. of Bags', 'Bag Type', 'Packaging', 'Branding', 'Readiness Date', 'Status',
     'Created By', 'Created At',
   ]
   const rows = orders.map((o) => [
     o.id, o.order_number, o.po_number, o.item, o.quantity, o.customer, o.destination_country, o.factory,
-    o.order_value, o.selling_price, o.packaging, o.branding, o.readiness_date, o.status,
+    o.order_value, o.selling_price, o.bag_count, o.bag_type, o.packaging, o.branding, o.readiness_date, o.status,
     o.created_by, new Date(o.created_at).toLocaleDateString(),
   ])
 

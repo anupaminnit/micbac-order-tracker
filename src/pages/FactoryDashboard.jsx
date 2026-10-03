@@ -204,10 +204,22 @@ export default function FactoryDashboard() {
                       <span className="factory-field-label">Packaging</span>
                       <span className="factory-field-value">{order.packaging}</span>
                     </div>
-                    {order.packing_type && (
+                    {order.bag_count && (
                       <div className="factory-field">
-                        <span className="factory-field-label">Packing Type</span>
-                        <span className="factory-field-value factory-field-value-raw">{order.packing_type}</span>
+                        <span className="factory-field-label">No. of Bags</span>
+                        <span className="factory-field-value">{order.bag_count.toLocaleString()}</span>
+                      </div>
+                    )}
+                    {order.bag_type && (
+                      <div className="factory-field">
+                        <span className="factory-field-label">Bag Type</span>
+                        <span className="factory-field-value factory-field-value-raw">{order.bag_type}</span>
+                      </div>
+                    )}
+                    {order.status === 'ready' && order.delivery_address && (
+                      <div className="factory-field">
+                        <span className="factory-field-label">Deliver To</span>
+                        <span className="factory-field-value factory-field-value-raw">{order.delivery_address}</span>
                       </div>
                     )}
                     {order.destination_country && (
