@@ -1,0 +1,58 @@
+.combobox {
+  position: relative;
+}
+/* Room for the chevron so long names don't run under it. */
+.combobox input {
+  padding-right: 36px;
+}
+.combobox-toggle {
+  position: absolute;
+  top: 0;
+  right: 0;
+  height: 100%;
+  width: 34px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: none;
+  border: none;
+  color: var(--text-light);
+  cursor: pointer;
+}
+.combobox-list {
+  position: absolute;
+  top: calc(100% + 4px);
+  left: 0;
+  right: 0;
+  z-index: 20;
+  max-height: 240px;
+  overflow-y: auto;
+  margin: 0;
+  padding: 4px;
+  list-style: none;
+  background: var(--surface);
+  border: 1px solid var(--border-dark);
+  border-radius: 8px;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.15);
+}
+.combobox-option {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  /* 44px-ish tap target on phones. */
+  padding: 11px 10px;
+  border-radius: 6px;
+  font-size: 13px;
+  line-height: 1.35;
+  color: var(--text);
+  cursor: pointer;
+}
+.combobox-option-active,
+.combobox-option:hover {
+  background: var(--bg);
+}
+.combobox-option-add {
+  font-weight: 600;
+  border-top: 1px solid var(--border);
+  border-radius: 0 0 6px 6px;
+}

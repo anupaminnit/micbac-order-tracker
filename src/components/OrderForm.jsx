@@ -4,6 +4,7 @@ import { createOrder, updateOrder } from '../lib/supabase'
 import { localDateStr } from '../lib/dates'
 import { getCustomers, addCustomer, normalizeCustomerName } from '../lib/customers'
 import BrandingPicker from './BrandingPicker'
+import CustomerCombobox from './CustomerCombobox'
 import '../styles/OrderForm.css'
 
 const PRIORITIES = [
@@ -155,22 +156,13 @@ export default function OrderForm({ user, order, onClose, onSuccess }) {
 
             <div className="form-group">
               <label htmlFor="customer">Customer *</label>
-              <input
+              <CustomerCombobox
                 id="customer"
-                name="customer"
-                type="text"
                 value={form.customer}
-                onChange={handleChange}
-                placeholder="Pick from list or type a new one"
-                list="customer-options"
-                autoComplete="off"
+                options={customers.map((c) => c.name)}
+                onChange={(name) => setForm((f) => ({ ...f, customer: name }))}
                 required
               />
-              <datalist id="customer-options">
-                {customers.map((c) => (
-                  <option key={c.id} value={c.name} />
-                ))}
-              </datalist>
             </div>
 
             <div className="form-group">
