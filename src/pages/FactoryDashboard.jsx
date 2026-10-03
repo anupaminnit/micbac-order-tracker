@@ -184,6 +184,12 @@ export default function FactoryDashboard() {
                   <div className="factory-divider" />
 
                   <div className="factory-fields">
+                    {order.order_number && (
+                      <div className="factory-field">
+                        <span className="factory-field-label">Order No.</span>
+                        <span className="factory-field-value factory-field-value-raw">{order.order_number}</span>
+                      </div>
+                    )}
                     <div className="factory-field">
                       <span className="factory-field-label">Customer</span>
                       <span className="factory-field-value">{order.customer}</span>
@@ -192,6 +198,12 @@ export default function FactoryDashboard() {
                       <span className="factory-field-label">Packaging</span>
                       <span className="factory-field-value">{order.packaging}</span>
                     </div>
+                    {order.packing_type && (
+                      <div className="factory-field">
+                        <span className="factory-field-label">Packing Type</span>
+                        <span className="factory-field-value factory-field-value-raw">{order.packing_type}</span>
+                      </div>
+                    )}
                     {order.destination_country && (
                       <div className="factory-field">
                         <span className="factory-field-label">Destination</span>

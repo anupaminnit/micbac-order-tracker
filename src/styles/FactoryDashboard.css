@@ -313,6 +313,9 @@
   padding-top: 2px;
 }
 .factory-field-value { font-size: 14px; font-weight: 500; color: var(--f-text-muted); flex: 1; text-transform: capitalize; }
+/* Free text typed by the owner (order no., packing instructions): show exactly as entered —
+   capitalize would turn "25 kg bags" into "25 Kg Bags". */
+.factory-field-value-raw { text-transform: none; }
 
 .factory-branding-block {
   display: flex;
