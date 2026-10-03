@@ -1,7 +1,8 @@
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import { X, Save, Paperclip } from 'lucide-react'
 import { createOrder, updateOrder } from '../lib/supabase'
 import { localDateStr } from '../lib/dates'
+import { getCustomers, addCustomer, normalizeCustomerName } from '../lib/customers'
 import BrandingPicker from './BrandingPicker'
 import '../styles/OrderForm.css'
 
@@ -49,6 +50,13 @@ export default function OrderForm({ user, order, onClose, onSuccess }) {
   const [form, setForm] = useState(() => (isEdit ? toFormState(order) : INITIAL))
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState('')
+  const [customers, setCustomers] = useState([])
+
+  useEffect(() => {
+    getCustomers()
+      .then(setCustomers)
+      .catch((err) => console.error('Failed to load customers:', err))
+  }, [])
 
   const handleChange = (e) => {
     const { name, value } = e.target
@@ -63,8 +71,10 @@ export default function OrderForm({ user, order, onClose, onSuccess }) {
     }
     setLoading(true)
     setError('')
+    const customer = normalizeCustomerName(form.customer)
     const payload = {
       ...form,
+      customer,
       quantity: parseInt(form.quantity, 10),
       order_value: form.order_value ? parseFloat(form.order_value) : null,
       po_number: form.po_number || null,
@@ -76,6 +86,16 @@ export default function OrderForm({ user, order, onClose, onSuccess }) {
         await updateOrder(order.id, payload, user.username)
       } else {
         await createOrder(payload, user.username)
+      }
+      // Remember a newly typed customer for next time. Best-effort: the order is already saved,
+      // so a failure here shouldn't surface as an order error.
+      const known = customers.some((c) => c.name.toLowerCase() === customer.toLowerCase())
+      if (!known) {
+        try {
+          await addCustomer(customer)
+        } catch (err) {
+          console.error('Failed to save new customer:', err)
+        }
       }
       onSuccess()
     } catch (err) {
@@ -141,9 +161,16 @@ export default function OrderForm({ user, order, onClose, onSuccess }) {
                 type="text"
                 value={form.customer}
                 onChange={handleChange}
-                placeholder="e.g. Acme Corp"
+                placeholder="Pick from list or type a new one"
+                list="customer-options"
+                autoComplete="off"
                 required
               />
+              <datalist id="customer-options">
+                {customers.map((c) => (
+                  <option key={c.id} value={c.name} />
+                ))}
+              </datalist>
             </div>
 
             <div className="form-group">
