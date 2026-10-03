@@ -24,7 +24,7 @@ export default function BrandingShowcase({ label }) {
         <span className="branding-showcase-thumb">
           <img src={url} alt={option.label} className="branding-showcase-img" />
           <span className="branding-showcase-zoom-hint">
-            <ZoomIn size={14} />
+            <ZoomIn size={18} />
           </span>
         </span>
         <span className="branding-showcase-label">{option.label}</span>
