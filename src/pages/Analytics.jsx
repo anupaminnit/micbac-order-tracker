@@ -19,6 +19,13 @@ const STATUS_LABEL = {
 const currency = (n) =>
   new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD', maximumFractionDigits: 0 }).format(n || 0)
 
+const pct = (n) => (n == null ? '—' : `${n.toFixed(1)}%`)
+
+// Shown wherever a figure silently leaves orders out, so a low number isn't misread.
+function unpricedNote(count) {
+  return count ? ` · ${count} without selling price excluded` : ''
+}
+
 function donutGradient(statusCounts) {
   const total = Math.max(Object.values(statusCounts).reduce((a, b) => a + b, 0), 1)
   let acc = 0
@@ -75,10 +82,30 @@ export default function Analytics({ user, onLogout }) {
 
             <div className="kpi-row">
               <div className="kpi-card kpi-hero">
-                <span className="kpi-label">Total Revenue</span>
-                <span className="kpi-value">{currency(data.totalRevenue)}</span>
-                <span className={`kpi-growth ${data.revenueGrowth >= 0 ? 'growth-up' : 'growth-down'}`}>
-                  {data.revenueGrowth >= 0 ? '↑' : '↓'} {Math.abs(data.revenueGrowth)}% vs last month
+                <span className="kpi-label">Gross Profit</span>
+                <span className={`kpi-value ${data.realised.profit < 0 ? 'kpi-loss' : ''}`}>
+                  {currency(data.realised.profit)}
+                </span>
+                <span className="kpi-sub">
+                  {pct(data.realised.margin)} margin on dispatched orders{unpricedNote(data.realised.unpricedCount)}
+                </span>
+                {data.profitGrowth != null && (
+                  <span className={`kpi-growth ${data.profitGrowth >= 0 ? 'growth-up' : 'growth-down'}`}>
+                    {data.profitGrowth >= 0 ? '↑' : '↓'} {Math.abs(data.profitGrowth)}% vs last month
+                  </span>
+                )}
+              </div>
+              <div className="kpi-card">
+                <span className="kpi-label">Revenue</span>
+                <span className="kpi-value">{currency(data.realised.revenue)}</span>
+                <span className="kpi-sub">selling price · cost {currency(data.realised.cost)}</span>
+              </div>
+              <div className="kpi-card">
+                <span className="kpi-label">Active Pipeline</span>
+                <span className="kpi-value">{currency(data.pipeline.revenue)}</span>
+                <span className="kpi-sub">
+                  {currency(data.pipeline.profit)} expected profit · {data.activeCount} active
+                  {unpricedNote(data.pipeline.unpricedCount)}
                 </span>
               </div>
               <div className="kpi-card">
@@ -95,24 +122,22 @@ export default function Analytics({ user, onLogout }) {
                   {data.avgProductionDays}
                   <span className="kpi-unit"> days</span>
                 </span>
-                <span className="kpi-sub">order → dispatch</span>
-              </div>
-              <div className="kpi-card">
-                <span className="kpi-label">Active Pipeline</span>
-                <span className="kpi-value">{currency(data.activePipelineValue)}</span>
-                <span className="kpi-sub">{data.activeCount} active orders</span>
+                <span className="kpi-sub">start → ready</span>
               </div>
             </div>
 
             <div className="chart-row">
               <div className="chart-card">
-                <h3>Monthly Revenue</h3>
-                <p className="chart-sub">Last 6 months (USD)</p>
+                <h3>Monthly Gross Profit</h3>
+                <p className="chart-sub">Dispatched orders, last 6 months (USD) · red = loss</p>
                 <div className="bar-chart-v">
-                  {data.monthlyRevenue.map((b) => (
-                    <div key={b.month} className="bar-col">
-                      <span className="bar-value">{currency(b.revenue)}</span>
-                      <div className="bar-v" style={{ height: `${Math.max(b.pct, 2)}%` }} />
+                  {data.monthlyProfit.map((b) => (
+                    <div key={b.month} className="bar-col" title={`Revenue ${currency(b.revenue)}`}>
+                      <span className="bar-value">{currency(b.profit)}</span>
+                      <div
+                        className={`bar-v ${b.profit < 0 ? 'bar-loss' : 'bar-green'}`}
+                        style={{ height: `${Math.max(b.pct, 2)}%` }}
+                      />
                       <span className="bar-month">{b.month}</span>
                     </div>
                   ))}
@@ -140,21 +165,28 @@ export default function Analytics({ user, onLogout }) {
             <div className="chart-row">
               <div className="chart-card">
                 <h3>Top Customers</h3>
-                <p className="chart-sub">By total order value</p>
+                <p className="chart-sub">By gross profit, all active and dispatched orders</p>
                 {data.topCustomers.length === 0 ? (
-                  <p className="chart-empty">No customer data yet.</p>
+                  <p className="chart-empty">No orders with both cost and selling price yet.</p>
                 ) : (
                   <div className="customer-list">
                     {data.topCustomers.map((c) => (
                       <div key={c.name} className="customer-row">
                         <div className="customer-top">
                           <span className="customer-name">{c.name}</span>
-                          <span className="customer-value">{currency(c.value)}</span>
+                          <span className={`customer-value ${c.profit < 0 ? 'kpi-loss' : ''}`}>
+                            {currency(c.profit)}
+                          </span>
                         </div>
                         <div className="progress-track">
-                          <div className="progress-fill" style={{ width: `${Math.max(c.pct, 2)}%` }} />
+                          <div
+                            className={`progress-fill ${c.profit < 0 ? 'progress-loss' : ''}`}
+                            style={{ width: `${Math.max(c.pct, 2)}%` }}
+                          />
                         </div>
-                        <span className="customer-orders">{c.orders} orders</span>
+                        <span className="customer-orders">
+                          {c.orders} orders · {pct(c.margin)} margin
+                        </span>
                       </div>
                     ))}
                   </div>

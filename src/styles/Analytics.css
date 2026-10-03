@@ -129,3 +129,8 @@
 @media (max-width: 900px) {
   .chart-row { grid-template-columns: 1fr; }
 }
+
+/* Profit can go negative — losses read red everywhere they appear. */
+.kpi-value.kpi-loss, .customer-value.kpi-loss { color: #dc2626; }
+.bar-v.bar-loss { background: #dc2626; }
+.progress-fill.progress-loss { background: #dc2626; }
